@@ -7,26 +7,29 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	input := `4 + 3 - d6 * 2d20 - 4/2; adv`
+	input := `(4 + 3) - 2d6 * d20 adv - 4/2; dadv`
 
 	tests := []struct {
 		expectedType    token.TokenType
 		expectedLiteral string
 	}{
+		{token.LPAREN, "("},
 		{token.INT, "4"},
 		{token.PLUS, "+"},
 		{token.INT, "3"},
+		{token.RPAREN, ")"},
 		{token.MINUS, "-"},
+		{token.INT, "2"},
 		{token.DICE, "6"},
 		{token.ASTERISK, "*"},
-		{token.INT, "2"},
 		{token.DICE, "20"},
+		{token.ADVANTAGE, "adv"},
 		{token.MINUS, "-"},
 		{token.INT, "4"},
 		{token.SLASH, "/"},
 		{token.INT, "2"},
 		{token.SEMICOLON, ";"},
-		{token.ADVANTAGE, "adv"},
+		{token.DISADVANDAGE, "dadv"},
 		{token.EOF, ""},
 	}
 	l := New(input)
