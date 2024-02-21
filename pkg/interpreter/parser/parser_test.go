@@ -286,10 +286,14 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"-(5 + 5)",
 			"(-(5 + 5))",
 		},
-		// {
-		// 	"2d20 + 2 * 5",
-		// 	"(2d20) + (2 * 5)",
-		// },
+		{
+			"d20mq2 + 2 * 5",
+			"(2d20 + (2 * 5))",
+		},
+		{
+			"(d5 + 5) * d2mq3mh1 * (5 + 5)",
+			"(((d5 + 5) * 3d2mh1) * (5 + 5))",
+		},
 	}
 
 	for _, tt := range tests {
