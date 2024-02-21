@@ -10,13 +10,15 @@ import (
 	"github.com/daneofmanythings/diceroni/pkg/interpreter/token"
 )
 
+// type alias for the testing suite
+type dice string
+
 const (
 	_ int = iota
 	LOWEST
-	SUM       // +
-	PRODUCT   // *
-	PREFIX    // -X or !X
-	DICEQUANT // 2d6
+	SUM     // +
+	PRODUCT // *
+	PREFIX  // -X or !X
 )
 
 var precedences = map[token.TokenType]int{
@@ -24,7 +26,6 @@ var precedences = map[token.TokenType]int{
 	token.MINUS:    SUM,
 	token.SLASH:    PRODUCT,
 	token.ASTERISK: PRODUCT,
-	token.DICE:     DICEQUANT,
 }
 
 type (
@@ -192,8 +193,43 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 	return lit
 }
 
-// WARN: utility function
-func (p *Parser) parseIntoAstIntegerLiteral(lit string) ast.IntegerLiteral {
+// NOTE: This does not happily recurse like the rest of the parser
+func (p *Parser) parseDiceExpression() ast.Expression {
+	dice := &ast.DiceLiteral{
+		Token: p.curToken,
+		Value: p.buildIntegerLiteralInPlace(p.curToken.Literal),
+	}
+
+	for slices.Contains(token.DiceMods, p.peekToken.Type) {
+		p.nextToken()
+		p.dicemodParseFns[p.curToken.Type](dice)
+	}
+
+	return dice
+}
+
+func (p *Parser) parseDiceQuant(d *ast.DiceLiteral) {
+	d.QuantModifier = p.buildIntegerLiteralInPlace(p.curToken.Literal)
+}
+
+func (p *Parser) parseDiceMin(d *ast.DiceLiteral) {
+	d.MinModifier = p.buildIntegerLiteralInPlace(p.curToken.Literal)
+}
+
+func (p *Parser) parseDiceMax(d *ast.DiceLiteral) {
+	d.MaxModifier = p.buildIntegerLiteralInPlace(p.curToken.Literal)
+}
+
+func (p *Parser) parseDiceLowest(d *ast.DiceLiteral) {
+	d.LowModifier = p.buildIntegerLiteralInPlace(p.curToken.Literal)
+}
+
+func (p *Parser) parseDiceHighest(d *ast.DiceLiteral) {
+	d.HighModifier = p.buildIntegerLiteralInPlace(p.curToken.Literal)
+}
+
+// NOTE: utility function: constructs ast.IntegerLiteral inplace. map belong elsewhere
+func (p *Parser) buildIntegerLiteralInPlace(lit string) ast.IntegerLiteral {
 	// This is a utility function which takes an integer as a string and constructs
 	// an ast.IntegerLiteral
 	node := ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: lit}}
@@ -205,42 +241,6 @@ func (p *Parser) parseIntoAstIntegerLiteral(lit string) ast.IntegerLiteral {
 
 	node.Value = value
 	return node
-}
-
-func (p *Parser) parseDiceExpression() ast.Expression {
-	dice := &ast.DiceLiteral{
-		Token: p.curToken,
-		Value: p.parseIntoAstIntegerLiteral(p.curToken.Literal),
-	}
-	for {
-		p.nextToken()
-		if !slices.Contains(token.DiceMods, p.curToken.Type) {
-			break
-		}
-		p.dicemodParseFns[p.curToken.Type](dice)
-	}
-
-	return dice
-}
-
-func (p *Parser) parseDiceQuant(d *ast.DiceLiteral) {
-	d.QuantModifier = p.parseIntoAstIntegerLiteral(p.curToken.Literal)
-}
-
-func (p *Parser) parseDiceMin(d *ast.DiceLiteral) {
-	d.MinModifier = p.parseIntoAstIntegerLiteral(p.curToken.Literal)
-}
-
-func (p *Parser) parseDiceMax(d *ast.DiceLiteral) {
-	d.MaxModifier = p.parseIntoAstIntegerLiteral(p.curToken.Literal)
-}
-
-func (p *Parser) parseDiceLowest(d *ast.DiceLiteral) {
-	d.LowModifier = p.parseIntoAstIntegerLiteral(p.curToken.Literal)
-}
-
-func (p *Parser) parseDiceHighest(d *ast.DiceLiteral) {
-	d.HighModifier = p.parseIntoAstIntegerLiteral(p.curToken.Literal)
 }
 
 func (p *Parser) parseGroupedExpression() ast.Expression {

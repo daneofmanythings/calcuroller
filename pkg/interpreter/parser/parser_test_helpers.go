@@ -57,6 +57,21 @@ func testIntegerLiteral(t *testing.T, il ast.Expression, value int64) bool {
 	return true
 }
 
+func testDiceLiteral(t *testing.T, dl ast.Expression, value dice) bool {
+	dicelit, ok := dl.(*ast.DiceLiteral)
+	if !ok {
+		t.Errorf("dl not *ast.DiceLiteral. got=%T", dl)
+		return false
+	}
+
+	if dicelit.String() != string(value) {
+		t.Errorf("dicelit.String() not %s. got=%s", value, dicelit.String())
+		return false
+	}
+
+	return true
+}
+
 func testLiteralExpression(t *testing.T, exp ast.Expression, expected interface{}) bool {
 	switch v := expected.(type) {
 	case int:
@@ -65,6 +80,8 @@ func testLiteralExpression(t *testing.T, exp ast.Expression, expected interface{
 		return testIntegerLiteral(t, exp, v)
 	case string:
 		return testIdentifier(t, exp, v)
+	case dice:
+		return testDiceLiteral(t, exp, v)
 	}
 	t.Errorf("type of exp not handled. got=%T", exp)
 	return false
