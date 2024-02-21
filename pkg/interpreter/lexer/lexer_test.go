@@ -7,7 +7,7 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	input := `(4 + 3) - 2d6 * d20 adv - 4/2; dadv`
+	input := `(4 + 3d5ma4) - d6mq2mi2 * d20 - 4/2;`
 
 	tests := []struct {
 		expectedType    token.TokenType
@@ -17,19 +17,20 @@ func TestNextToken(t *testing.T) {
 		{token.INT, "4"},
 		{token.PLUS, "+"},
 		{token.INT, "3"},
+		{token.DICE, "5"},
+		{token.DICEMAX, "4"},
 		{token.RPAREN, ")"},
 		{token.MINUS, "-"},
-		{token.INT, "2"},
 		{token.DICE, "6"},
+		{token.DICEQUANT, "2"},
+		{token.DICEMIN, "2"},
 		{token.ASTERISK, "*"},
 		{token.DICE, "20"},
-		{token.ADVANTAGE, "adv"},
 		{token.MINUS, "-"},
 		{token.INT, "4"},
 		{token.SLASH, "/"},
 		{token.INT, "2"},
 		{token.SEMICOLON, ";"},
-		{token.DISADVANDAGE, "dadv"},
 		{token.EOF, ""},
 	}
 	l := New(input)

@@ -54,13 +54,14 @@ func (l *Lexer) NextToken() token.Token {
 	default:
 		if isLetter(l.ch) {
 			if l.ch == 'd' && isDigit(l.peekChar()) { // identifying dice string
-				tok.Type = token.DICE
-				l.readChar() // advance to the integer
-				tok.Literal = l.readNumber()
-				return tok
+				return l.newDiceToken()
 			}
 			tok.Literal = l.readIdentifier()
 			tok.Type = token.LookupIdent(tok.Literal)
+			// checking if the identifier corresponds to a dicemod and adjusting accordingly
+			if _, ok := token.Keywords[tok.Literal]; ok {
+				tok.Literal = l.readNumber()
+			}
 			return tok
 		} else if isDigit(l.ch) {
 			tok.Type = token.INT
@@ -76,6 +77,14 @@ func (l *Lexer) NextToken() token.Token {
 
 func newToken(tokenType token.TokenType, ch byte) token.Token {
 	return token.Token{Type: tokenType, Literal: string(ch)}
+}
+
+func (l *Lexer) newDiceToken() token.Token {
+	var tok token.Token
+	tok.Type = token.DICE
+	l.readChar() // advance to the integer
+	tok.Literal = l.readNumber()
+	return tok
 }
 
 func (l *Lexer) readIdentifier() string {
@@ -113,5 +122,13 @@ func (l *Lexer) peekChar() byte {
 		return 0
 	} else {
 		return l.input[l.peekPosition]
+	}
+}
+
+func (l *Lexer) peekPeekChar() byte {
+	if l.peekPosition >= len(l.input)-1 {
+		return 0
+	} else {
+		return l.input[l.peekPosition+1]
 	}
 }

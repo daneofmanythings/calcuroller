@@ -8,8 +8,11 @@ type Token struct {
 }
 
 var Keywords = map[string]TokenType{
-	"adv":  ADVANTAGE,
-	"dadv": DISADVANDAGE,
+	"mi": DICEMIN,
+	"ma": DICEMAX,
+	"mh": DICEHIGHEST,
+	"ml": DICELOWEST,
+	"mq": DICEQUANT,
 }
 
 func LookupIdent(ident string) TokenType {
@@ -17,6 +20,14 @@ func LookupIdent(ident string) TokenType {
 		return tok
 	}
 	return IDENT
+}
+
+var DiceMods []TokenType = []TokenType{
+	DICEQUANT,
+	DICEMAX,
+	DICEMIN,
+	DICELOWEST,
+	DICEHIGHEST,
 }
 
 const (
@@ -28,6 +39,13 @@ const (
 	INT   = "INT"
 	DICE  = "DICE"
 	// 1343456
+
+	// Diceroll Modifiers
+	DICEQUANT   = "QUANT"
+	DICEMIN     = "MIN"
+	DICEMAX     = "MAX"
+	DICEHIGHEST = "HIGHEST"
+	DICELOWEST  = "LOWEST"
 
 	// Operators
 	PLUS     = "+"
@@ -41,6 +59,6 @@ const (
 	RPAREN    = ")"
 
 	// Keywords
-	ADVANTAGE    = "ADVANTAGE"
-	DISADVANDAGE = "DISADVANDAGE"
+	// ADVANTAGE    = "ADVANTAGE"
+	// DISADVANDAGE = "DISADVANDAGE"
 )
