@@ -70,48 +70,48 @@ func TestIntegerLiteralExpression(t *testing.T) {
 }
 
 func TestParsingDicemodExpressions(t *testing.T) {
-	// This test compares the output from the .String() method to determine if
-	// there is a correct match
+	// NOTE: ast.DiceLiterals are compared against thier string representation to
+	// verify equality
 
 	testCases := []struct {
 		name   string
 		input  string
-		target string
+		target dice
 	}{
 		{
 			"sanity check",
 			"d20",
-			"d20",
+			dice("d20"),
 		},
 		{
 			"quantity",
 			"d25mq2",
-			"2d25",
+			dice("2d25"),
 		},
 		{
 			"minimum",
 			"d5mi5",
-			"d5mi5",
+			dice("d5mi5"),
 		},
 		{
 			"maximum",
 			"d20ma5",
-			"d20ma5",
+			dice("d20ma5"),
 		},
 		{
 			"lowest",
 			"d20ml5",
-			"d20ml5",
+			dice("d20ml5"),
 		},
 		{
 			"highest",
 			"d20mh5",
-			"d20mh5",
+			dice("d20mh5"),
 		},
 		{
 			"compound",
 			"d20mq2mi2ma2mh1",
-			"2d20mi2ma2mh1",
+			dice("2d20mi2ma2mh1"),
 		},
 	}
 
@@ -138,8 +138,8 @@ func TestParsingDicemodExpressions(t *testing.T) {
 				t.Fatalf("exp not *ast.DiceLiteral. got=%T", stmt.Expression)
 			}
 
-			if literal.String() != tc.target {
-				t.Fatalf("incorrect literal. expected=%s, got=%s", tc.target, literal.String())
+			if !testDiceLiteral(t, literal, tc.target) {
+				return
 			}
 		})
 	}
@@ -152,6 +152,7 @@ func TestParsingPrefixExpressions(t *testing.T) {
 		value    interface{}
 	}{
 		{"-15;", "-", 15},
+		{"-d5;", "-", dice("d5")},
 	}
 
 	for _, tt := range prefixTests {
@@ -186,6 +187,9 @@ func TestParsingPrefixExpressions(t *testing.T) {
 }
 
 func TestParsingInfixExpressions(t *testing.T) {
+	// NOTE: ast.DiceLiterals are compared against their .String() representation to
+	// verify equality
+
 	infixTests := []struct {
 		input      string
 		leftValue  interface{}
@@ -196,6 +200,9 @@ func TestParsingInfixExpressions(t *testing.T) {
 		{"5 - 5;", 5, "-", 5},
 		{"5 * 5;", 5, "*", 5},
 		{"5 / 5;", 5, "/", 5},
+		{"d5 + 5;", dice("d5"), "+", 5},
+		{"d5mq2 - 5", dice("2d5"), "-", 5},
+		{"d5mi2 * d2", dice("d5mi2"), "*", dice("d2")},
 		{"foobar + barfoo;", "foobar", "+", "barfoo"},
 		{"foobar - barfoo;", "foobar", "-", "barfoo"},
 		{"foobar * barfoo;", "foobar", "*", "barfoo"},

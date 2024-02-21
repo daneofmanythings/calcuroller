@@ -57,6 +57,8 @@ func (l *Lexer) NextToken() token.Token {
 				return l.newDiceToken()
 			}
 			tok.Literal = l.readIdentifier()
+			// TODO: Re-evaluate this logic. If there are ever more reserved identifiers
+			// added, this will break
 			tok.Type = token.LookupIdent(tok.Literal)
 			// checking if the identifier corresponds to a dicemod and adjusting accordingly
 			if _, ok := token.Keywords[tok.Literal]; ok {
