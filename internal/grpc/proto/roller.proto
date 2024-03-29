@@ -1,0 +1,26 @@
+syntax = "proto3";
+option go_package = "github.com/daneofmanythings/diceroni/internal/grpc/roller";
+
+service Roller {
+  rpc Ping(PingRequest) returns (PingResponse) {}
+  rpc Roll(CreateRequest) returns (CreateResponse) {}
+}
+
+message PingRequest {}
+
+message PingResponse { string ping = 1; }
+
+message CreateRequest {
+  string diceString = 1;
+  string callerID = 2;
+};
+
+message RollData {
+  string error = 1;
+  string diceString = 2;
+};
+
+message CreateResponse {
+  RollData data = 1;
+  string callerID = 2;
+};
