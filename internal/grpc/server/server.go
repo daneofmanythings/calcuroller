@@ -8,6 +8,7 @@ import (
 
 	pb "github.com/daneofmanythings/diceroni/internal/grpc/proto"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 var port int = 8080
@@ -39,10 +40,11 @@ func main() {
 
 	var opts []grpc.ServerOption
 
-	serviceRegistrar := grpc.NewServer(opts...)
-	pb.RegisterRollerServer(serviceRegistrar, newServer())
+	grpcServer := grpc.NewServer(opts...)
+	pb.RegisterRollerServer(grpcServer, newServer())
+	reflection.Register(grpcServer)
 
-	err = serviceRegistrar.Serve(lis)
+	err = grpcServer.Serve(lis)
 	if err != nil {
 		log.Fatalf("...could not serve: %v", err)
 	}
