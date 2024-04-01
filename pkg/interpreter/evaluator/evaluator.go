@@ -2,6 +2,8 @@ package evaluator
 
 import (
 	"fmt"
+	"math/rand"
+	"slices"
 
 	"github.com/daneofmanythings/diceroni/pkg/interpreter/ast"
 	"github.com/daneofmanythings/diceroni/pkg/interpreter/object"
@@ -21,7 +23,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 
 	// Expressions
 	case *ast.DiceLiteral:
-		return &object.Dice{}
+		return evalDiceExpression(node, env) // evaluates the roll and records all metadata in the env
 
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: node.Value}
@@ -74,6 +76,73 @@ func evalStatements(stmts []ast.Statement, env *object.Environment) object.Objec
 	return result
 }
 
+// TODO: here is the dice evaluation!
+func evalDiceExpression(node ast.Expression, env *object.Environment) object.Object {
+	dice, ok := node.(*ast.DiceLiteral)
+	if !ok {
+		return newError("expected DiceLiteral, got=%v", node.TokenLiteral())
+	}
+
+	rawRolls := []uint{}
+
+	if dice.Quantity > 0 {
+		for i := 0; i < int(dice.Quantity); i++ {
+			rawRolls = rollSingleDie(dice.Size, rawRolls)
+		}
+	} else {
+		rawRolls = rollSingleDie(dice.Size, rawRolls)
+	}
+
+	adjustedRolls := slices.Clone(rawRolls)
+
+	if dice.MaxValue > 0 {
+		adjustedRolls = applyMaxValue(adjustedRolls, dice.MaxValue)
+	}
+	if dice.MinValue > 0 {
+		adjustedRolls = applyMinValue(adjustedRolls, dice.MinValue)
+	}
+	if dice.KeepHighest > 0 {
+		adjustedRolls = applyKeepHighest(adjustedRolls, dice.KeepHighest)
+	}
+	if dice.KeepLowest > 0 {
+		adjustedRolls = applyKeepLowest(adjustedRolls, dice.KeepLowest)
+	}
+
+	return &object.Integer{Value: sumRolls(adjustedRolls)}
+}
+
+func rollSingleDie(size uint, rawRolls []uint) []uint {
+	roll := rand.Intn(int(size))
+	rawRolls = append(rawRolls, uint(roll+1))
+	return rawRolls
+}
+
+// TODO: implment these functions
+func applyMaxValue(rolls []uint, val uint) []uint {
+	return rolls
+}
+
+func applyMinValue(rolls []uint, val uint) []uint {
+	return rolls
+}
+
+func applyKeepHighest(rolls []uint, val uint) []uint {
+	return rolls
+}
+
+func applyKeepLowest(rolls []uint, val uint) []uint {
+	return rolls
+}
+
+func sumRolls(rolls []uint) int64 {
+	var result int64 = 0
+	for _, roll := range rolls {
+		result += int64(roll)
+	}
+
+	return result
+}
+
 func evalPrefixExpression(operator string, right object.Object) object.Object {
 	switch operator {
 	case "-":
@@ -84,12 +153,13 @@ func evalPrefixExpression(operator string, right object.Object) object.Object {
 }
 
 func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
-	if right.Type() != object.INTEGER_OBJ {
-		return newError("unknown operator: -%s", right.Type())
+	if right.Type() == object.INTEGER_OBJ {
+		value := right.(*object.Integer).Value
+		return &object.Integer{Value: -value}
+	} else if right.Type() == object.DICE_OBJ {
+		return newError("dice not implmented yet: %s", right.Type())
 	}
-
-	value := right.(*object.Integer).Value
-	return &object.Integer{Value: -value}
+	return newError("unknown operator: -%s", right.Type())
 }
 
 func evalInfixExpression(operator string, left, right object.Object) object.Object {

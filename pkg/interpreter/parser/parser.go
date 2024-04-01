@@ -197,7 +197,7 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 func (p *Parser) parseDiceExpression() ast.Expression {
 	dice := &ast.DiceLiteral{
 		Token: p.curToken,
-		Value: p.buildIntegerLiteralInPlace(p.curToken.Literal),
+		Size:  p.validateIntToUInt(p.curToken.Literal),
 	}
 
 	for slices.Contains(token.DiceMods, p.peekToken.Type) {
@@ -209,38 +209,33 @@ func (p *Parser) parseDiceExpression() ast.Expression {
 }
 
 func (p *Parser) parseDiceQuant(d *ast.DiceLiteral) {
-	d.QuantModifier = p.buildIntegerLiteralInPlace(p.curToken.Literal)
+	d.Quantity = p.validateIntToUInt(p.curToken.Literal)
 }
 
 func (p *Parser) parseDiceMin(d *ast.DiceLiteral) {
-	d.MinModifier = p.buildIntegerLiteralInPlace(p.curToken.Literal)
+	d.MinValue = p.validateIntToUInt(p.curToken.Literal)
 }
 
 func (p *Parser) parseDiceMax(d *ast.DiceLiteral) {
-	d.MaxModifier = p.buildIntegerLiteralInPlace(p.curToken.Literal)
+	d.MaxValue = p.validateIntToUInt(p.curToken.Literal)
 }
 
 func (p *Parser) parseDiceLowest(d *ast.DiceLiteral) {
-	d.LowModifier = p.buildIntegerLiteralInPlace(p.curToken.Literal)
+	d.KeepLowest = p.validateIntToUInt(p.curToken.Literal)
 }
 
 func (p *Parser) parseDiceHighest(d *ast.DiceLiteral) {
-	d.HighModifier = p.buildIntegerLiteralInPlace(p.curToken.Literal)
+	d.KeepHighest = p.validateIntToUInt(p.curToken.Literal)
 }
 
-// NOTE: utility function: constructs ast.IntegerLiteral inplace. map belong elsewhere
-func (p *Parser) buildIntegerLiteralInPlace(lit string) ast.IntegerLiteral {
-	// This is a utility function which takes an integer as a string and constructs
-	// an ast.IntegerLiteral
-	node := ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: lit}}
+func (p *Parser) validateIntToUInt(lit string) uint {
 	value, err := strconv.ParseInt(lit, 0, 64)
 	if err != nil {
 		msg := fmt.Sprintf("could not parse %q as integer", p.curToken.Literal)
 		p.errors = append(p.errors, msg)
 	}
 
-	node.Value = value
-	return node
+	return uint(value)
 }
 
 func (p *Parser) parseGroupedExpression() ast.Expression {

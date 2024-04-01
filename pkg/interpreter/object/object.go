@@ -25,13 +25,6 @@ type Integer struct {
 func (i *Integer) Type() ObjectType { return INTEGER_OBJ }
 func (i *Integer) Inspect() string  { return fmt.Sprintf("%d", i.Value) }
 
-type Dice struct {
-	Value int64
-}
-
-func (d *Dice) Type() ObjectType { return DICE_OBJ }
-func (d *Dice) Inspect() string  { return fmt.Sprintf("%d", d.Value) }
-
 type Null struct{}
 
 func (n *Null) Type() ObjectType { return NULL_OBJ }
@@ -43,6 +36,10 @@ type Error struct {
 
 func (e *Error) Type() ObjectType { return ERROR_OBJ }
 func (e *Error) Inspect() string  { return "ERROR: " + e.Message }
+
+type DiceMetadata struct {
+	diceString string
+}
 
 func NewEnclosedEnvironment(outer *Environment) *Environment {
 	env := NewEnvironment()

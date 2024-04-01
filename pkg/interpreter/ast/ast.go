@@ -2,6 +2,7 @@ package ast
 
 import (
 	"bytes"
+	"fmt"
 
 	"github.com/daneofmanythings/diceroni/pkg/interpreter/token"
 )
@@ -75,13 +76,13 @@ func (il *IntegerLiteral) TokenLiteral() string { return il.Token.Literal }
 func (il *IntegerLiteral) String() string       { return il.Token.Literal }
 
 type DiceLiteral struct {
-	Token         token.Token
-	Value         IntegerLiteral
-	QuantModifier IntegerLiteral
-	MaxModifier   IntegerLiteral
-	MinModifier   IntegerLiteral
-	HighModifier  IntegerLiteral
-	LowModifier   IntegerLiteral
+	Token       token.Token
+	Size        uint
+	Quantity    uint
+	MaxValue    uint
+	MinValue    uint
+	KeepHighest uint
+	KeepLowest  uint
 }
 
 func (dl *DiceLiteral) expressionNode()      {}
@@ -89,24 +90,24 @@ func (dl *DiceLiteral) TokenLiteral() string { return dl.Token.Literal }
 func (dl *DiceLiteral) String() string {
 	var out bytes.Buffer
 
-	if dl.QuantModifier.Value > 0 {
-		out.WriteString(dl.QuantModifier.String())
+	if dl.Quantity > 0 {
+		out.WriteString(fmt.Sprintf("%d", dl.Quantity))
 	}
 
 	out.WriteString("d")
-	out.WriteString(dl.Value.String())
+	out.WriteString(fmt.Sprintf("%d", dl.Size))
 
-	if dl.MinModifier.Value > 0 {
-		out.WriteString("mi" + dl.MinModifier.String())
+	if dl.MinValue > 0 {
+		out.WriteString("mi" + fmt.Sprintf("%d", dl.MinValue))
 	}
-	if dl.MaxModifier.Value > 0 {
-		out.WriteString("ma" + dl.MaxModifier.String())
+	if dl.MaxValue > 0 {
+		out.WriteString("ma" + fmt.Sprintf("%d", dl.MaxValue))
 	}
-	if dl.LowModifier.Value > 0 {
-		out.WriteString("ml" + dl.LowModifier.String())
+	if dl.KeepLowest > 0 {
+		out.WriteString("ml" + fmt.Sprintf("%d", dl.KeepLowest))
 	}
-	if dl.HighModifier.Value > 0 {
-		out.WriteString("mh" + dl.HighModifier.String())
+	if dl.KeepHighest > 0 {
+		out.WriteString("mh" + fmt.Sprintf("%d", dl.KeepHighest))
 	}
 
 	return out.String()

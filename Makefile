@@ -8,3 +8,6 @@ gen_grpc:
 
 run:
 	go run ./internal/grpc/server/server.go
+
+test:
+	go test ./...
