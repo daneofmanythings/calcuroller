@@ -2,6 +2,7 @@ package object
 
 import (
 	"fmt"
+	"slices"
 )
 
 type ObjectType string
@@ -9,7 +10,6 @@ type ObjectType string
 const (
 	INTEGER_OBJ = "INTEGER"
 	DICE_OBJ    = "DICE"
-	NULL_OBJ    = "NULL"
 	ERROR_OBJ   = "ERROR"
 )
 
@@ -25,11 +25,6 @@ type Integer struct {
 func (i *Integer) Type() ObjectType { return INTEGER_OBJ }
 func (i *Integer) Inspect() string  { return fmt.Sprintf("%d", i.Value) }
 
-type Null struct{}
-
-func (n *Null) Type() ObjectType { return NULL_OBJ }
-func (n *Null) Inspect() string  { return "null" }
-
 type Error struct {
 	Message string
 }
@@ -37,35 +32,46 @@ type Error struct {
 func (e *Error) Type() ObjectType { return ERROR_OBJ }
 func (e *Error) Inspect() string  { return "ERROR: " + e.Message }
 
-type DiceMetadata struct {
-	diceString string
+type DiceData struct {
+	Literal    string
+	Tags       []string
+	RawRolls   []uint
+	FinalRolls []uint
+	Value      int64
 }
 
-func NewEnclosedEnvironment(outer *Environment) *Environment {
-	env := NewEnvironment()
-	env.outer = outer
-	return env
+func (dd *DiceData) IsEqualTo(other DiceData) bool {
+	// for testing purposes to compare equality
+	isLit := dd.Literal == other.Literal
+	isTags := slices.Compare(dd.Tags, other.Tags) == 0
+	isRawRolls := slices.Compare(dd.RawRolls, other.RawRolls) == 0
+	isFinalRolls := slices.Compare(dd.FinalRolls, other.FinalRolls) == 0
+	isValue := dd.Value == other.Value
+
+	return isLit && isTags && isRawRolls && isFinalRolls && isValue
 }
 
-func NewEnvironment() *Environment {
-	s := make(map[string]Object)
-	return &Environment{store: s}
+type Metadata struct {
+	Store map[string]DiceData
 }
 
-type Environment struct {
-	store map[string]Object
-	outer *Environment
+func NewMetadata() *Metadata {
+	s := make(map[string]DiceData)
+	return &Metadata{Store: s}
 }
 
-func (e *Environment) Get(name string) (Object, bool) {
-	obj, ok := e.store[name]
-	if !ok && e.outer != nil {
-		obj, ok = e.outer.Get(name)
+func (m *Metadata) Add(literal string, val DiceData) {
+	// NOTE: handles collisions very sloppily. There shouldn't be too many though.
+	collisionCounter := 0
+	quantifier := "(%d)"
+	literal += fmt.Sprintf(quantifier, collisionCounter)
+	for {
+		if _, ok := m.Store[literal]; ok {
+			collisionCounter += 1
+			literal = literal[:len(literal)-3] + fmt.Sprintf(quantifier, collisionCounter)
+		} else {
+			break
+		}
 	}
-	return obj, ok
-}
-
-func (e *Environment) Set(name string, val Object) Object {
-	e.store[name] = val
-	return val
+	m.Store[literal] = val
 }

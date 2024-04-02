@@ -69,7 +69,7 @@ func TestIntegerLiteralExpression(t *testing.T) {
 	}
 }
 
-func TestParsingDicemodExpressions(t *testing.T) {
+func TestParsingDiceExpressions(t *testing.T) {
 	// NOTE: ast.DiceLiterals are compared against thier string representation to
 	// verify equality
 
@@ -85,7 +85,7 @@ func TestParsingDicemodExpressions(t *testing.T) {
 		},
 		{
 			"quantity",
-			"d25mq2",
+			"d25qu2",
 			dice("2d25"),
 		},
 		{
@@ -100,18 +100,23 @@ func TestParsingDicemodExpressions(t *testing.T) {
 		},
 		{
 			"lowest",
-			"d20ml5",
-			dice("d20ml5"),
+			"d20kl5",
+			dice("d20kl5"),
 		},
 		{
 			"highest",
-			"d20mh5",
-			dice("d20mh5"),
+			"d20kh5",
+			dice("d20kh5"),
+		},
+		{
+			"metatag",
+			"d4[test]",
+			dice("d4[test]"),
 		},
 		{
 			"compound",
-			"d20mq2mi2ma2mh1",
-			dice("2d20mi2ma2mh1"),
+			"d20qu2mi2ma2kh1[test]",
+			dice("2d20mi2ma2kh1[test]"),
 		},
 	}
 
@@ -201,7 +206,7 @@ func TestParsingInfixExpressions(t *testing.T) {
 		{"5 * 5;", 5, "*", 5},
 		{"5 / 5;", 5, "/", 5},
 		{"d5 + 5;", dice("d5"), "+", 5},
-		{"d5mq2 - 5", dice("2d5"), "-", 5},
+		{"d5qu2 - 5", dice("2d5"), "-", 5},
 		{"d5mi2 * d2", dice("d5mi2"), "*", dice("d2")},
 		{"foobar + barfoo;", "foobar", "+", "barfoo"},
 		{"foobar - barfoo;", "foobar", "-", "barfoo"},
@@ -287,12 +292,12 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"(-(5 + 5))",
 		},
 		{
-			"d20mq2 + 2 * 5",
+			"d20qu2 + 2 * 5",
 			"(2d20 + (2 * 5))",
 		},
 		{
-			"(d5 + 5) * d2mq3mh1 * (5 + 5)",
-			"(((d5 + 5) * 3d2mh1) * (5 + 5))",
+			"(d5 + 5) * d2qu3kh1 * (5 + 5)",
+			"(((d5 + 5) * 3d2kh1) * (5 + 5))",
 		},
 	}
 

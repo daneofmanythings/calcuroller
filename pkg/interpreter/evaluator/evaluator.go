@@ -9,39 +9,37 @@ import (
 	"github.com/daneofmanythings/diceroni/pkg/interpreter/object"
 )
 
-var NULL = &object.Null{}
-
-func Eval(node ast.Node, env *object.Environment) object.Object {
+func Eval(node ast.Node, md *object.Metadata) object.Object {
 	switch node := node.(type) {
 
 	// Statements
 	case *ast.Program:
-		return evalProgram(node, env)
+		return evalProgram(node, md)
 
 	case *ast.ExpressionStatement:
-		return Eval(node.Expression, env)
+		return Eval(node.Expression, md)
 
 	// Expressions
 	case *ast.DiceLiteral:
-		return evalDiceExpression(node, env) // evaluates the roll and records all metadata in the env
+		return evalDiceExpression(node, md) // evaluates the roll and records all metadata in the env
 
 	case *ast.IntegerLiteral:
-		return &object.Integer{Value: node.Value}
+		return evalIntegerExpression(node, md)
 
 	case *ast.PrefixExpression:
-		right := Eval(node.Right, env)
+		right := Eval(node.Right, md)
 		if isError(right) {
 			return right
 		}
 		return evalPrefixExpression(node.Operator, right)
 
 	case *ast.InfixExpression:
-		left := Eval(node.Left, env)
+		left := Eval(node.Left, md)
 		if isError(left) {
 			return left
 		}
 
-		right := Eval(node.Right, env)
+		right := Eval(node.Right, md)
 		if isError(right) {
 			return right
 		}
@@ -52,7 +50,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	return nil
 }
 
-func evalProgram(program *ast.Program, env *object.Environment) object.Object {
+func evalProgram(program *ast.Program, env *object.Metadata) object.Object {
 	var result object.Object
 
 	for _, statement := range program.Statements {
@@ -67,7 +65,7 @@ func evalProgram(program *ast.Program, env *object.Environment) object.Object {
 	return result
 }
 
-func evalStatements(stmts []ast.Statement, env *object.Environment) object.Object {
+func evalStatements(stmts []ast.Statement, env *object.Metadata) object.Object {
 	var result object.Object
 
 	for _, statement := range stmts {
@@ -76,8 +74,25 @@ func evalStatements(stmts []ast.Statement, env *object.Environment) object.Objec
 	return result
 }
 
+func evalIntegerExpression(node ast.Expression, md *object.Metadata) object.Object {
+	integerNode, ok := node.(*ast.IntegerLiteral)
+	if !ok {
+		return newError("expected IntegerLiteral, got=%v", node.TokenLiteral())
+	}
+
+	md.Add(integerNode.String(), object.DiceData{
+		Literal:    integerNode.String(),
+		Tags:       integerNode.Tags,
+		RawRolls:   []uint{},
+		FinalRolls: []uint{},
+		Value:      integerNode.Value,
+	})
+
+	return &object.Integer{Value: integerNode.Value}
+}
+
 // TODO: here is the dice evaluation!
-func evalDiceExpression(node ast.Expression, env *object.Environment) object.Object {
+func evalDiceExpression(node ast.Expression, md *object.Metadata) object.Object {
 	dice, ok := node.(*ast.DiceLiteral)
 	if !ok {
 		return newError("expected DiceLiteral, got=%v", node.TokenLiteral())
@@ -108,7 +123,17 @@ func evalDiceExpression(node ast.Expression, env *object.Environment) object.Obj
 		adjustedRolls = applyKeepLowest(adjustedRolls, dice.KeepLowest)
 	}
 
-	return &object.Integer{Value: sumRolls(adjustedRolls)}
+	value := sumRolls(adjustedRolls)
+
+	md.Add(dice.String(), object.DiceData{
+		Literal:    dice.String(),
+		Tags:       dice.Tags,
+		RawRolls:   rawRolls,
+		FinalRolls: adjustedRolls,
+		Value:      value,
+	})
+
+	return &object.Integer{Value: value}
 }
 
 func rollSingleDie(size uint, rawRolls []uint) []uint {
@@ -229,7 +254,7 @@ func evalIntegerInfixExpression(operator string, left, right object.Object) obje
 	}
 }
 
-func evalExpressions(exps []ast.Expression, env *object.Environment) []object.Object {
+func evalExpressions(exps []ast.Expression, env *object.Metadata) []object.Object {
 	var result []object.Object
 
 	for _, e := range exps {

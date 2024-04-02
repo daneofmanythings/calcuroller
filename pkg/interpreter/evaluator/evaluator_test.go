@@ -121,32 +121,54 @@ func TestApplyKeepLowest(t *testing.T) {
 // NOTE: This method is precarious. random seeding would be better.
 func TestEval(t *testing.T) {
 	testCases := []struct {
-		name        string
-		repetitions int
-		input       string
-		expected    float64
+		name     string
+		input    string
+		expected int64
+		dicedata map[string]object.DiceData
 	}{
-		{"sanity1", 1, "5 + 5", 10},
-		{"sanity2", 1, "5 + 5 * 2", 15},
-		{"sanity3", 1, "(5 + 5) * 2", 20},
-		{"2d20 + 10", 100000, "d20mq2 + 10", 31},
-		{"4d8 - 2 max6", 100000, "d8mq4ma6 - 2", (33*4)/8.0 - 2},
-		{"attack at adv", 100000, "d20mq2mh1 + 5", 18.5},
+		{"sanity1", "5 + 5", 10, map[string]object.DiceData{
+			"5(0)": {Literal: "5", Tags: []string{}, RawRolls: []uint{}, FinalRolls: []uint{}, Value: 5},
+			"5(1)": {Literal: "5", Tags: []string{}, RawRolls: []uint{}, FinalRolls: []uint{}, Value: 5},
+		}},
+		{"sanity2", "5 + 5 * 2[test][another one]", 15, map[string]object.DiceData{
+			"5(0)": {Literal: "5", Tags: []string{}, RawRolls: []uint{}, FinalRolls: []uint{}, Value: 5},
+			"5(1)": {Literal: "5", Tags: []string{}, RawRolls: []uint{}, FinalRolls: []uint{}, Value: 5},
+			"2(0)": {Literal: "2", Tags: []string{"test", "another one"}, RawRolls: []uint{}, FinalRolls: []uint{}, Value: 2},
+		}},
+		{"sanity3", "(5[first] + 5[second]) * 2[third]", 20, map[string]object.DiceData{
+			"5(0)": {Literal: "5", Tags: []string{"first"}, RawRolls: []uint{}, FinalRolls: []uint{}, Value: 5},
+			"5(1)": {Literal: "5", Tags: []string{"second"}, RawRolls: []uint{}, FinalRolls: []uint{}, Value: 5},
+			"2(0)": {Literal: "2", Tags: []string{"third"}, RawRolls: []uint{}, FinalRolls: []uint{}, Value: 2},
+		}},
+		{"2d1 + 10", "d1qu2[test] + 10", 12, map[string]object.DiceData{
+			"2d1[test](0)": {Literal: "2d1[test]", Tags: []string{"test"}, RawRolls: []uint{1, 1}, FinalRolls: []uint{1, 1}, Value: 2},
+			"10(0)":        {Literal: "10", Tags: []string{}, RawRolls: []uint{}, FinalRolls: []uint{}, Value: 10},
+		}},
+		{"4d1kh3 - 2", "d1qu4kh3 - 2", 1, map[string]object.DiceData{
+			"4d1kh3(0)": {Literal: "4d1kh3", Tags: []string{}, RawRolls: []uint{1, 1, 1, 1}, FinalRolls: []uint{1, 1, 1}, Value: 3},
+			"2(0)":      {Literal: "2", Tags: []string{}, RawRolls: []uint{}, FinalRolls: []uint{}, Value: 2},
+		}},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			resultSum := 0
-			for i := 0; i < tc.repetitions; i++ {
-				l := lexer.New(tc.input)
-				p := parser.New(l)
-				program := p.ParseProgram()
-				evaluation := Eval(program, &object.Environment{})
-				resultSum += int(evaluation.(*object.Integer).Value)
-			}
-			result := resultSum / tc.repetitions
-			if result != int(tc.expected) {
+			l := lexer.New(tc.input)
+			p := parser.New(l)
+			program := p.ParseProgram()
+			metadata := object.NewMetadata()
+			evaluation := Eval(program, metadata)
+			result := evaluation.(*object.Integer).Value
+			if result != tc.expected {
 				t.Fatalf("expected=%d, got=%d", int(tc.expected), result)
+			}
+			for key, tcdd := range tc.dicedata {
+				dd, ok := metadata.Store[key]
+				if !ok {
+					t.Fatalf("data not found for key=%s.\nmetadata=%v", key, metadata)
+				}
+				if !dd.IsEqualTo(tcdd) {
+					t.Fatalf("expected=%v, got=%v", tcdd, dd)
+				}
 			}
 		})
 	}

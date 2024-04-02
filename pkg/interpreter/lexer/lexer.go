@@ -48,6 +48,10 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.LPAREN, l.ch)
 	case ')':
 		tok = newToken(token.RPAREN, l.ch)
+	case '[':
+		l.readChar()
+		tok.Literal = l.readTag()
+		tok.Type = token.METATAG
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
@@ -57,13 +61,13 @@ func (l *Lexer) NextToken() token.Token {
 				return l.newDiceToken()
 			}
 			tok.Literal = l.readIdentifier()
-			// TODO: Re-evaluate this logic. If there are ever more reserved identifiers
-			// added, this will break
+			// WARN: Re-evaluate this logic. If there are ever more reserved identifiers added, this will break
 			tok.Type = token.LookupIdent(tok.Literal)
 			// checking if the identifier corresponds to a dicemod and adjusting accordingly
 			if _, ok := token.Keywords[tok.Literal]; ok {
 				tok.Literal = l.readNumber()
 			}
+			// TODO: Add lexing for tags. they are to be surrounded by [], and be read in as simply strings
 			return tok
 		} else if isDigit(l.ch) {
 			tok.Type = token.INT
@@ -97,8 +101,20 @@ func (l *Lexer) readIdentifier() string {
 	return l.input[position:l.position]
 }
 
+func (l *Lexer) readTag() string {
+	position := l.position
+	for isTag(l.ch) {
+		l.readChar()
+	}
+	return l.input[position:l.position]
+}
+
 func isLetter(ch byte) bool {
 	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
+}
+
+func isTag(ch byte) bool {
+	return ch != ']'
 }
 
 func (l *Lexer) skipWhitespace() {

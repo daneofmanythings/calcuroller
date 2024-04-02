@@ -68,6 +68,7 @@ func (i *Identifier) String() string       { return i.Value }
 
 type IntegerLiteral struct {
 	Token token.Token
+	Tags  []string
 	Value int64
 }
 
@@ -77,6 +78,7 @@ func (il *IntegerLiteral) String() string       { return il.Token.Literal }
 
 type DiceLiteral struct {
 	Token       token.Token
+	Tags        []string
 	Size        uint
 	Quantity    uint
 	MaxValue    uint
@@ -104,10 +106,15 @@ func (dl *DiceLiteral) String() string {
 		out.WriteString("ma" + fmt.Sprintf("%d", dl.MaxValue))
 	}
 	if dl.KeepLowest > 0 {
-		out.WriteString("ml" + fmt.Sprintf("%d", dl.KeepLowest))
+		out.WriteString("kl" + fmt.Sprintf("%d", dl.KeepLowest))
 	}
 	if dl.KeepHighest > 0 {
-		out.WriteString("mh" + fmt.Sprintf("%d", dl.KeepHighest))
+		out.WriteString("kh" + fmt.Sprintf("%d", dl.KeepHighest))
+	}
+	for _, tag := range dl.Tags {
+		out.WriteString("[")
+		out.WriteString(tag)
+		out.WriteString("]")
 	}
 
 	return out.String()

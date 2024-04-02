@@ -7,7 +7,7 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	input := `(4 + 3d5ma4) - d6mq2mi2 * d20 - 4/2;`
+	input := `(4 + 3d5ma4) - d6qu2mi2[test] * d20 - 4/2;`
 
 	tests := []struct {
 		expectedType    token.TokenType
@@ -24,6 +24,7 @@ func TestNextToken(t *testing.T) {
 		{token.DICE, "6"},
 		{token.DICEQUANT, "2"},
 		{token.DICEMIN, "2"},
+		{token.METATAG, "test"},
 		{token.ASTERISK, "*"},
 		{token.DICE, "20"},
 		{token.MINUS, "-"},

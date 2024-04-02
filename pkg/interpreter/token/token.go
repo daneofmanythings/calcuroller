@@ -10,9 +10,9 @@ type Token struct {
 var Keywords = map[string]TokenType{
 	"mi": DICEMIN,
 	"ma": DICEMAX,
-	"mh": DICEHIGHEST,
-	"ml": DICELOWEST,
-	"mq": DICEQUANT,
+	"kh": DICEKEEPHIGHEST,
+	"kl": DICEKEEPLOWEST,
+	"qu": DICEQUANT,
 }
 
 func LookupIdent(ident string) TokenType {
@@ -23,11 +23,12 @@ func LookupIdent(ident string) TokenType {
 }
 
 var DiceMods []TokenType = []TokenType{
+	METATAG,
 	DICEQUANT,
 	DICEMAX,
 	DICEMIN,
-	DICELOWEST,
-	DICEHIGHEST,
+	DICEKEEPLOWEST,
+	DICEKEEPHIGHEST,
 }
 
 const (
@@ -41,11 +42,12 @@ const (
 	// 1343456
 
 	// Diceroll Modifiers
-	DICEQUANT   = "QUANT"
-	DICEMIN     = "MIN"
-	DICEMAX     = "MAX"
-	DICEHIGHEST = "HIGHEST"
-	DICELOWEST  = "LOWEST"
+	METATAG         = "TAG"
+	DICEQUANT       = "QUANT"
+	DICEMIN         = "MIN"
+	DICEMAX         = "MAX"
+	DICEKEEPHIGHEST = "HIGHEST"
+	DICEKEEPLOWEST  = "LOWEST"
 
 	// Operators
 	PLUS     = "+"
