@@ -117,21 +117,59 @@ func rollSingleDie(size uint, rawRolls []uint) []uint {
 	return rawRolls
 }
 
-// TODO: implment these functions
 func applyMaxValue(rolls []uint, val uint) []uint {
+	for i := 0; i < len(rolls); i++ {
+		if rolls[i] > val {
+			rolls[i] = val
+		}
+	}
 	return rolls
 }
 
 func applyMinValue(rolls []uint, val uint) []uint {
+	for i := 0; i < len(rolls); i++ {
+		if rolls[i] < val {
+			rolls[i] = val
+		}
+	}
 	return rolls
 }
 
 func applyKeepHighest(rolls []uint, val uint) []uint {
-	return rolls
+	return applyKeepFunc(rolls, val, slices.Max)
 }
 
 func applyKeepLowest(rolls []uint, val uint) []uint {
-	return rolls
+	return applyKeepFunc(rolls, val, slices.Min)
+}
+
+func applyKeepFunc(rolls []uint, val uint, f func([]uint) uint) []uint {
+	resultRolls := []uint{}          // what will be returned
+	rollsCopy := slices.Clone(rolls) // what will be updated to track remaining rolls after grabbing a min
+	// rolls will be used to sort the returning slice in the order the rolls happened
+
+	if int(val) >= len(rolls) {
+		return rolls // more rolls that the keep value
+	}
+
+	// grabbing mins, putting them into lowestRolls, and removing them from the copy.
+	for i := 0; i < int(val); i++ {
+		nextRoll := f(rollsCopy)
+		resultRolls = append(resultRolls, nextRoll)
+		idx := slices.Index(rollsCopy, nextRoll)
+		rollsCopy = slices.Delete(rollsCopy, idx, idx+1)
+	}
+
+	// sorting the result in roll order
+	slices.SortFunc(resultRolls, func(a, b uint) int {
+		if slices.Index(rolls, a) < slices.Index(rolls, b) {
+			return -1
+		} else {
+			return 1
+		}
+	})
+
+	return resultRolls
 }
 
 func sumRolls(rolls []uint) int64 {
