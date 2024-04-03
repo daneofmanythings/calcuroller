@@ -9,6 +9,12 @@ import (
 	"github.com/daneofmanythings/diceroni/pkg/interpreter/object"
 )
 
+func EvalFromRequest(node ast.Node) (object.Object, *object.Metadata) {
+	md := object.NewMetadata()
+	val := Eval(node, md)
+	return val, md
+}
+
 func Eval(node ast.Node, md *object.Metadata) object.Object {
 	switch node := node.(type) {
 

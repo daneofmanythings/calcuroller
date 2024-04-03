@@ -2,11 +2,15 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net"
 
 	pb "github.com/daneofmanythings/diceroni/internal/grpc/proto"
+	"github.com/daneofmanythings/diceroni/pkg/interpreter/evaluator"
+	"github.com/daneofmanythings/diceroni/pkg/interpreter/lexer"
+	"github.com/daneofmanythings/diceroni/pkg/interpreter/parser"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -25,10 +29,25 @@ func (s *rollerServer) Ping(ctx context.Context, req *pb.PingRequest) (*pb.PingR
 	return &pb.PingResponse{Ping: "pong"}, nil
 }
 
+// TODO: DO REAL ERROR CHECKING ON BOTH RETURN VALUES AND JSON ENCODING!
 func (s *rollerServer) Roll(ctx context.Context, req *pb.CreateRequest) (*pb.CreateResponse, error) {
+	l := lexer.New(req.DiceString)
+	p := parser.New(l)
+	program := p.ParseProgram()
+
+	result, metadata := evaluator.EvalFromRequest(program)
+
+	metadataJSON, err := json.Marshal(metadata)
+	if err != nil {
+		metadataJSON = []byte{}
+	}
+
 	return &pb.CreateResponse{
-		Data:     nil,
-		CallerID: "not yet implemented",
+		Data: &pb.RollData{
+			Literal:  fmt.Sprintf("%d", result),
+			Metadata: metadataJSON,
+		},
+		CallerId: req.CallerId,
 	}, nil
 }
 
