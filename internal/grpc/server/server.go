@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"context"
@@ -51,7 +51,7 @@ func (s *rollerServer) Roll(ctx context.Context, req *pb.CreateRequest) (*pb.Cre
 	}, nil
 }
 
-func main() {
+func Run() {
 	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
 	if err != nil {
 		log.Fatalf("...could not listen: %v", err)
