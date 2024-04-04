@@ -41,8 +41,20 @@ run-server-docker-multistage: build-server-docker-multistage
 	@ docker run --publish 8080:8080 calcuroller
 
 .PHONY: run-server-docker-host
-run-server-docker-multistage-host: build-server-docker-multistage
+run-server-docker-host: build-server-docker-multistage
 	@ docker run --network="host" calcuroller
+
+.PHONY: build-client-local
+build-client-local: 
+	@ echo Locally building binary
+	@ mkdir .bin/ -p
+	@ go build -o local_client ./internal/grpc/client/client.go
+	@ mv local_client .bin/
+	@ echo ...done!
+
+.PHONY: run-client-local
+run-client-local: build-client-local
+	@ ./.bin/local_client
 
 .PHONY: test
 test:
