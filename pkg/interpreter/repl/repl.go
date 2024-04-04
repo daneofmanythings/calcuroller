@@ -40,8 +40,5 @@ func RunFromTerminal() {
 
 func RunFromGRPC(input string) (string, *object.Metadata) {
 	value, metadata := run(input)
-
-	valueAsString := fmt.Sprintf("%d", value)
-
-	return valueAsString, metadata
+	return value.Inspect(), metadata
 }

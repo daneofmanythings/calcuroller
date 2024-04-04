@@ -1,8 +1,10 @@
 package object
 
 import (
+	"bytes"
 	"fmt"
 	"slices"
+	"strings"
 )
 
 type ObjectType string
@@ -38,6 +40,40 @@ type DiceData struct {
 	RawRolls   []uint
 	FinalRolls []uint
 	Value      int64
+}
+
+func (dd *DiceData) Type() ObjectType { return DICE_OBJ }
+func (dd *DiceData) Inspect() string {
+	var out bytes.Buffer
+
+	out.WriteString("Literal: " + dd.Literal + "\n")
+
+	if len(dd.Tags) > 0 {
+		tags := strings.Join(dd.Tags, " ")
+		out.WriteString("Tags: " + tags + "\n")
+	}
+
+	if len(dd.RawRolls) > 0 {
+		rawAsString := uintSliceToString(dd.RawRolls)
+		out.WriteString("Raw Rolls: " + rawAsString + "\n")
+	}
+
+	if len(dd.FinalRolls) > 0 {
+		finalAsString := uintSliceToString(dd.FinalRolls)
+		out.WriteString("Final Rolls: " + finalAsString + "\n")
+	}
+
+	out.WriteString("Value: " + fmt.Sprintf("%d", dd.Value) + "\n")
+
+	return out.String()
+}
+
+func uintSliceToString(input []uint) string {
+	var out bytes.Buffer
+	for _, num := range input {
+		out.WriteString(fmt.Sprintf("%d", num) + " ")
+	}
+	return out.String()
 }
 
 func (dd *DiceData) IsEqualTo(other DiceData) bool {

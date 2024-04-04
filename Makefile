@@ -37,10 +37,6 @@ build-server-docker-multistage:
 	@ docker build -f Dockerfile.multistage . -t calcuroller
 
 .PHONY: run-server-docker
-run-server-docker-multistage: build-server-docker-multistage
-	@ docker run --publish 8080:8080 calcuroller
-
-.PHONY: run-server-docker-host
 run-server-docker-host: build-server-docker-multistage
 	@ docker run --network="host" calcuroller
 

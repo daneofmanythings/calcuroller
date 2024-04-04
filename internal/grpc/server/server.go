@@ -31,7 +31,7 @@ func (s *rollerServer) Ping(ctx context.Context, req *pb.PingRequest) (*pb.PingR
 func (s *rollerServer) Roll(ctx context.Context, req *pb.CreateRequest) (*pb.CreateResponse, error) {
 	result, metadata := repl.RunFromGRPC(req.DiceString)
 
-	metadataJSON, err := json.Marshal(metadata)
+	metadataJSON, err := json.Marshal(metadata.Store)
 	if err != nil {
 		metadataJSON = []byte{}
 	}

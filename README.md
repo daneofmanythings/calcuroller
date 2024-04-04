@@ -1,7 +1,10 @@
 <div align="center">
 
-# calcuroller
+# Calcuroller
 ![code coverage badge](https://github.com/daneofmanythings/calcuroller/actions/workflows/tests.yml/badge.svg)
+
+## Summary
+A gRPC service that calculates the results of dice rolls
 
 </div>
 
@@ -9,7 +12,6 @@
 An API to that parses a dice string and returns the results of the roll.
 
 ## Motivation
-
 
 ## Quick Start
 
