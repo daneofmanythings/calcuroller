@@ -1,16 +1,14 @@
 # syntax=docker/dockerfile:1
 
 # Build the application from source
-FROM golang:1.22.2 AS build-stage
+FROM golang:1.21.4 AS build-stage
 
 WORKDIR /app
 
 COPY . ./
 RUN go mod download
 
-RUN mkdir calcuroller
-RUN CGO_ENABLED=0 GOOS=linux go build -o calcuroller ./internal/grpc/server/server.go
-RUN mv calcuroller ./calcuroller
+RUN CGO_ENABLED=0 GOOS=linux go build -o /calcuroller ./internal/grpc/server/server.go
 
 # Run the tests in the container
 FROM build-stage AS run-test-stage

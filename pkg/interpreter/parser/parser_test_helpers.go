@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/daneofmanythings/diceroni/pkg/interpreter/ast"
+	"github.com/daneofmanythings/calcuroller/pkg/interpreter/ast"
 )
 
 func checkParserErrors(t *testing.T, p *Parser) {

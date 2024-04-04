@@ -32,28 +32,15 @@ build-server-local:
 run-server-local: build-server-local
 	@ ./.bin/local_server
 
-.PHONY: build-server-docker
-build-server-docker:
-	@ docker build . -t calcuroller:latest
-
-.PHONY: run-server-docker
-run-server-docker: build-server-docker
-	@ docker run --publish 8080:8080 calcuroller
-
-.PHONY: run-server-docker-host
-run-server-docker-host: build-server-docker
-	@ docker run --network="host" calcuroller
-
  .PHONY: build-server-docker-multistage
 build-server-docker-multistage:
-	@ docker build -f Dockerfile.multistage  ./internal/grpc/server/ -t calcuroller
+	@ docker build -f Dockerfile.multistage . -t calcuroller
 
-.PHONY: run-server-docker-multistage
+.PHONY: run-server-docker
 run-server-docker-multistage: build-server-docker-multistage
 	@ docker run --publish 8080:8080 calcuroller
 
-
-.PHONY: run-server-docker-multistage-host
+.PHONY: run-server-docker-host
 run-server-docker-multistage-host: build-server-docker-multistage
 	@ docker run --network="host" calcuroller
 

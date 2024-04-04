@@ -3,7 +3,6 @@ module github.com/daneofmanythings/calcuroller
 go 1.21.4
 
 require (
-	github.com/daneofmanythings/diceroni v0.0.0-20240403053310-d51889e8d305
 	github.com/go-chi/chi/v5 v5.0.11
 	github.com/go-chi/cors v1.2.1
 	google.golang.org/grpc v1.62.1

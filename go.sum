@@ -1,5 +1,3 @@
-github.com/daneofmanythings/diceroni v0.0.0-20240403053310-d51889e8d305 h1:R/zfpmq5WjK64U6Fi6lbvJcK8exTCIIW1neTEIOM7bE=
-github.com/daneofmanythings/diceroni v0.0.0-20240403053310-d51889e8d305/go.mod h1:Oc2Gw7OFsSnR0Qf2fgH8j8KYE2sqkAT3Yp5moOWRhgg=
 github.com/go-chi/chi/v5 v5.0.11 h1:BnpYbFZ3T3S1WMpD79r7R5ThWX40TaFB7L31Y8xqSwA=
 github.com/go-chi/chi/v5 v5.0.11/go.mod h1:DslCQbL2OYiznFReuXYUmQ2hGd1aDpCnlMNITLSKoi8=
 github.com/go-chi/cors v1.2.1 h1:xEC8UT3Rlp2QuWNEr4Fs/c2EAGVKBwy/1vHx3bppil4=
