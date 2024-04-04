@@ -4,9 +4,9 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/daneofmanythings/diceroni/pkg/interpreter/lexer"
-	"github.com/daneofmanythings/diceroni/pkg/interpreter/object"
-	"github.com/daneofmanythings/diceroni/pkg/interpreter/parser"
+	"github.com/daneofmanythings/calcuroller/pkg/interpreter/lexer"
+	"github.com/daneofmanythings/calcuroller/pkg/interpreter/object"
+	"github.com/daneofmanythings/calcuroller/pkg/interpreter/parser"
 )
 
 func TestRollSingleDie(t *testing.T) {

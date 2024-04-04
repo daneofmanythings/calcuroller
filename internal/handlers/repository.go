@@ -1,6 +1,6 @@
 package handlers
 
-import "github.com/daneofmanythings/diceroni/internal/config"
+import "github.com/daneofmanythings/calcuroller/internal/config"
 
 var Repo *Repository
 

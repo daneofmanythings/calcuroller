@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/daneofmanythings/diceroni/pkg/interpreter/token"
+	"github.com/daneofmanythings/calcuroller/pkg/interpreter/token"
 )
 
 type Node interface {

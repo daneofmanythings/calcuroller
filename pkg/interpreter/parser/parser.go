@@ -5,9 +5,9 @@ import (
 	"slices"
 	"strconv"
 
-	"github.com/daneofmanythings/diceroni/pkg/interpreter/ast"
-	"github.com/daneofmanythings/diceroni/pkg/interpreter/lexer"
-	"github.com/daneofmanythings/diceroni/pkg/interpreter/token"
+	"github.com/daneofmanythings/calcuroller/pkg/interpreter/ast"
+	"github.com/daneofmanythings/calcuroller/pkg/interpreter/lexer"
+	"github.com/daneofmanythings/calcuroller/pkg/interpreter/token"
 )
 
 // type alias for the testing suite

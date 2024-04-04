@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/daneofmanythings/diceroni/internal/grpc/roller";
+option go_package = "github.com/daneofmanythings/calcuroller/internal/grpc/roller";
 
 service Roller {
   rpc Ping(PingRequest) returns (PingResponse) {}

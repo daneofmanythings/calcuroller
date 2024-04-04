@@ -3,7 +3,7 @@ package lexer
 import (
 	"testing"
 
-	"github.com/daneofmanythings/diceroni/pkg/interpreter/token"
+	"github.com/daneofmanythings/calcuroller/pkg/interpreter/token"
 )
 
 func TestNextToken(t *testing.T) {

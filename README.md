@@ -1,7 +1,7 @@
 <div align="center">
 
-# diceroni
-![code coverage badge](https://github.com/daneofmanythings/diceroni/actions/workflows/tests.yml/badge.svg)
+# calcuroller
+![code coverage badge](https://github.com/daneofmanythings/calcuroller/actions/workflows/tests.yml/badge.svg)
 
 </div>
 

@@ -1,4 +1,4 @@
-package server
+package main
 
 import (
 	"context"
@@ -7,10 +7,8 @@ import (
 	"log"
 	"net"
 
-	pb "github.com/daneofmanythings/diceroni/internal/grpc/proto"
-	"github.com/daneofmanythings/diceroni/pkg/interpreter/evaluator"
-	"github.com/daneofmanythings/diceroni/pkg/interpreter/lexer"
-	"github.com/daneofmanythings/diceroni/pkg/interpreter/parser"
+	pb "github.com/daneofmanythings/calcuroller/internal/grpc/proto"
+	"github.com/daneofmanythings/calcuroller/pkg/interpreter/repl"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -31,11 +29,7 @@ func (s *rollerServer) Ping(ctx context.Context, req *pb.PingRequest) (*pb.PingR
 
 // TODO: DO REAL ERROR CHECKING ON BOTH RETURN VALUES AND JSON ENCODING!
 func (s *rollerServer) Roll(ctx context.Context, req *pb.CreateRequest) (*pb.CreateResponse, error) {
-	l := lexer.New(req.DiceString)
-	p := parser.New(l)
-	program := p.ParseProgram()
-
-	result, metadata := evaluator.EvalFromRequest(program)
+	result, metadata := repl.RunFromGRPC(req.DiceString)
 
 	metadataJSON, err := json.Marshal(metadata)
 	if err != nil {
@@ -44,14 +38,14 @@ func (s *rollerServer) Roll(ctx context.Context, req *pb.CreateRequest) (*pb.Cre
 
 	return &pb.CreateResponse{
 		Data: &pb.RollData{
-			Literal:  fmt.Sprintf("%d", result),
+			Literal:  result,
 			Metadata: metadataJSON,
 		},
 		CallerId: req.CallerId,
 	}, nil
 }
 
-func Run() {
+func main() {
 	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
 	if err != nil {
 		log.Fatalf("...could not listen: %v", err)

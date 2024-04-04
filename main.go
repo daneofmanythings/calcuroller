@@ -1,7 +1,7 @@
 package main
 
-import "github.com/daneofmanythings/diceroni/internal/grpc/server"
+import "github.com/daneofmanythings/calcuroller/pkg/interpreter/repl"
 
 func main() {
-	server.Run()
+	repl.RunFromTerminal()
 }

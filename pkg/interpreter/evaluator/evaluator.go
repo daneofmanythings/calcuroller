@@ -5,8 +5,8 @@ import (
 	"math/rand"
 	"slices"
 
-	"github.com/daneofmanythings/diceroni/pkg/interpreter/ast"
-	"github.com/daneofmanythings/diceroni/pkg/interpreter/object"
+	"github.com/daneofmanythings/calcuroller/pkg/interpreter/ast"
+	"github.com/daneofmanythings/calcuroller/pkg/interpreter/object"
 )
 
 func EvalFromRequest(node ast.Node) (object.Object, *object.Metadata) {

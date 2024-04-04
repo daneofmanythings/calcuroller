@@ -3,8 +3,8 @@ package parser
 import (
 	"testing"
 
-	"github.com/daneofmanythings/diceroni/pkg/interpreter/ast"
-	"github.com/daneofmanythings/diceroni/pkg/interpreter/lexer"
+	"github.com/daneofmanythings/calcuroller/pkg/interpreter/ast"
+	"github.com/daneofmanythings/calcuroller/pkg/interpreter/lexer"
 )
 
 func TestIdentifierExpression(t *testing.T) {
