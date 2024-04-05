@@ -54,11 +54,12 @@ const (
 	MINUS    = "-"
 	ASTERISK = "*"
 	SLASH    = "/"
+	MODULUS  = "%"
+	CARET    = "^"
 
 	// Delimiters
-	SEMICOLON = ";"
-	LPAREN    = "("
-	RPAREN    = ")"
+	LPAREN = "("
+	RPAREN = ")"
 
 	// Keywords
 	// ADVANTAGE    = "ADVANTAGE"

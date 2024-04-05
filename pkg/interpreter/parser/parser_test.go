@@ -8,7 +8,7 @@ import (
 )
 
 func TestIdentifierExpression(t *testing.T) {
-	input := "foobar;"
+	input := "foobar"
 
 	l := lexer.New(input)
 	p := New(l)
@@ -39,7 +39,7 @@ func TestIdentifierExpression(t *testing.T) {
 }
 
 func TestIntegerLiteralExpression(t *testing.T) {
-	input := "5;"
+	input := "5"
 
 	l := lexer.New(input)
 	p := New(l)
@@ -156,8 +156,8 @@ func TestParsingPrefixExpressions(t *testing.T) {
 		operator string
 		value    interface{}
 	}{
-		{"-15;", "-", 15},
-		{"-d5;", "-", dice("d5")},
+		{"-15", "-", 15},
+		{"-d5", "-", dice("d5")},
 	}
 
 	for _, tt := range prefixTests {
@@ -201,17 +201,19 @@ func TestParsingInfixExpressions(t *testing.T) {
 		operator   string
 		rightValue interface{}
 	}{
-		{"5 + 5;", 5, "+", 5},
-		{"5 - 5;", 5, "-", 5},
-		{"5 * 5;", 5, "*", 5},
-		{"5 / 5;", 5, "/", 5},
-		{"d5 + 5;", dice("d5"), "+", 5},
+		{"5 + 5", 5, "+", 5},
+		{"5 - 5", 5, "-", 5},
+		{"5 * 5", 5, "*", 5},
+		{"5 / 5", 5, "/", 5},
+		{"5 % 5", 5, "%", 5},
+		{"5 ^ 5", 5, "^", 5},
+		{"d5 + 5", dice("d5"), "+", 5},
 		{"d5qu2 - 5", dice("2d5"), "-", 5},
 		{"d5mi2 * d2", dice("d5mi2"), "*", dice("d2")},
-		{"foobar + barfoo;", "foobar", "+", "barfoo"},
-		{"foobar - barfoo;", "foobar", "-", "barfoo"},
-		{"foobar * barfoo;", "foobar", "*", "barfoo"},
-		{"foobar / barfoo;", "foobar", "/", "barfoo"},
+		{"foobar + barfoo", "foobar", "+", "barfoo"},
+		{"foobar - barfoo", "foobar", "-", "barfoo"},
+		{"foobar * barfoo", "foobar", "*", "barfoo"},
+		{"foobar / barfoo", "foobar", "/", "barfoo"},
 	}
 
 	for _, tt := range infixTests {
@@ -274,6 +276,10 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 		{
 			"1 + (2 + 3) + 4",
 			"((1 + (2 + 3)) + 4)",
+		},
+		{
+			"1 + 2 ^ 3 * 4",
+			"(1 + ((2 ^ 3) * 4))",
 		},
 		{
 			"(5 + 5) * 2",

@@ -18,14 +18,17 @@ const (
 	LOWEST
 	SUM
 	PRODUCT
+	EXPONENT
 	PREFIX
 )
 
 var precedences = map[token.TokenType]int{
 	token.PLUS:     SUM,
 	token.MINUS:    SUM,
-	token.SLASH:    PRODUCT,
 	token.ASTERISK: PRODUCT,
+	token.SLASH:    PRODUCT,
+	token.MODULUS:  PRODUCT,
+	token.CARET:    EXPONENT,
 }
 
 type (
@@ -55,8 +58,8 @@ func New(l *lexer.Lexer) *Parser {
 	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
 	p.registerPrefix(token.IDENT, p.parseIdentifier)
 	p.registerPrefix(token.INT, p.parseIntegerLiteral)
-	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 	p.registerPrefix(token.DICE, p.parseDiceExpression)
+	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
@@ -64,6 +67,8 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.MINUS, p.parseInfixExpression)
 	p.registerInfix(token.SLASH, p.parseInfixExpression)
 	p.registerInfix(token.ASTERISK, p.parseInfixExpression)
+	p.registerInfix(token.CARET, p.parseInfixExpression)
+	p.registerInfix(token.MODULUS, p.parseInfixExpression)
 
 	p.dicemodParseFns = make(map[token.TokenType]dicemodParseFn)
 	p.registerDicemod(token.METATAG, p.parseDiceTag)
@@ -119,10 +124,6 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	stmt := &ast.ExpressionStatement{Token: p.curToken}
 	stmt.Expression = p.parseExpression(LOWEST)
 
-	if p.peekTokenIs(token.SEMICOLON) {
-		p.nextToken()
-	}
-
 	return stmt
 }
 
@@ -134,7 +135,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 	}
 	leftExp := prefix()
 
-	for !p.peekTokenIs(token.SEMICOLON) && precedence < p.peekPrecedence() {
+	for precedence < p.peekPrecedence() {
 		infix := p.infixParseFns[p.peekToken.Type]
 		if infix == nil {
 			return leftExp

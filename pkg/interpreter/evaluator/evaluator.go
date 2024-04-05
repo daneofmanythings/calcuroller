@@ -225,8 +225,6 @@ func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
 	if right.Type() == object.INTEGER_OBJ {
 		value := right.(*object.Integer).Value
 		return &object.Integer{Value: -value}
-	} else if right.Type() == object.DICE_OBJ {
-		return newError("dice not implmented yet: %s", right.Type())
 	}
 	return newError("unknown operator: -%s", right.Type())
 }
@@ -254,10 +252,24 @@ func evalIntegerInfixExpression(operator string, left, right object.Object) obje
 	case "*":
 		return &object.Integer{Value: leftVal * rightVal}
 	case "/":
+		if rightVal == 0 {
+			rightVal = 1 // this is to handle the case where a dice expression is the denominator and is 0.
+		}
 		return &object.Integer{Value: leftVal / rightVal}
+	case "%":
+		return &object.Integer{Value: leftVal % rightVal}
+	case "^":
+		return &object.Integer{Value: exponentiationR(leftVal, rightVal)}
 	default:
 		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
 	}
+}
+
+func exponentiationR(base, exponent int64) int64 {
+	if exponent <= 0 {
+		return 1
+	}
+	return base * exponentiationR(base, exponent-1)
 }
 
 func evalExpressions(exps []ast.Expression, env *object.Metadata) []object.Object {

@@ -118,7 +118,6 @@ func TestApplyKeepLowest(t *testing.T) {
 	}
 }
 
-// NOTE: This method is precarious. random seeding would be better.
 func TestEval(t *testing.T) {
 	testCases := []struct {
 		name     string
@@ -139,6 +138,10 @@ func TestEval(t *testing.T) {
 			"5(0)": {Literal: "5", Tags: []string{"first"}, RawRolls: []uint{}, FinalRolls: []uint{}, Value: 5},
 			"5(1)": {Literal: "5", Tags: []string{"second"}, RawRolls: []uint{}, FinalRolls: []uint{}, Value: 5},
 			"2(0)": {Literal: "2", Tags: []string{"third"}, RawRolls: []uint{}, FinalRolls: []uint{}, Value: 2},
+		}},
+		{"sanity4", "-5 ^ - d1qu3", 1, map[string]object.DiceData{
+			"5(0)":   {Literal: "5", Tags: []string{}, RawRolls: []uint{}, FinalRolls: []uint{}, Value: 5},
+			"3d1(0)": {Literal: "3d1", Tags: []string{}, RawRolls: []uint{1, 1, 1}, FinalRolls: []uint{1, 1, 1}, Value: 3},
 		}},
 		{"2d1 + 10", "d1qu2[test] + 10", 12, map[string]object.DiceData{
 			"2d1[test](0)": {Literal: "2d1[test]", Tags: []string{"test"}, RawRolls: []uint{1, 1}, FinalRolls: []uint{1, 1}, Value: 2},
