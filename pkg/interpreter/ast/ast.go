@@ -76,6 +76,16 @@ func (il *IntegerLiteral) expressionNode()      {}
 func (il *IntegerLiteral) TokenLiteral() string { return il.Token.Literal }
 func (il *IntegerLiteral) String() string       { return il.Token.Literal }
 
+type IllegalLiteral struct {
+	Token   token.Token
+	Literal string
+	pos     int
+}
+
+func (il *IllegalLiteral) expressionNode()      {}
+func (il *IllegalLiteral) TokenLiteral() string { return il.Token.Literal }
+func (il *IllegalLiteral) String() string       { return il.Literal }
+
 type DiceLiteral struct {
 	Token       token.Token
 	Tags        []string

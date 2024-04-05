@@ -32,6 +32,9 @@ func Eval(node ast.Node, md *object.Metadata) object.Object {
 	case *ast.IntegerLiteral:
 		return evalIntegerExpression(node, md)
 
+	case *ast.IllegalLiteral:
+		return evalIllegalLiteral(node, md)
+
 	case *ast.PrefixExpression:
 		right := Eval(node.Right, md)
 		if isError(right) {
@@ -212,6 +215,10 @@ func sumRolls(rolls []uint) int64 {
 	return result
 }
 
+func evalIllegalLiteral(node ast.Expression, md *object.Metadata) object.Object {
+	return newError("illegal token: %s", node.(*ast.IllegalLiteral).Literal)
+}
+
 func evalPrefixExpression(operator string, right object.Object) object.Object {
 	switch operator {
 	case "-":
@@ -259,17 +266,17 @@ func evalIntegerInfixExpression(operator string, left, right object.Object) obje
 	case "%":
 		return &object.Integer{Value: leftVal % rightVal}
 	case "^":
-		return &object.Integer{Value: exponentiationR(leftVal, rightVal)}
+		return &object.Integer{Value: integerExponentiation(leftVal, rightVal)}
 	default:
 		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
 	}
 }
 
-func exponentiationR(base, exponent int64) int64 {
+func integerExponentiation(base, exponent int64) int64 {
 	if exponent <= 0 {
 		return 1
 	}
-	return base * exponentiationR(base, exponent-1)
+	return base * integerExponentiation(base, exponent-1)
 }
 
 func evalExpressions(exps []ast.Expression, env *object.Metadata) []object.Object {

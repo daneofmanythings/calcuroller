@@ -31,7 +31,12 @@ func RunFromTerminal() {
 		input, err := reader.ReadString('\n')
 		if err == nil {
 			val, _ := run(input)
-			fmt.Printf("%d\n\n", val.(*object.Integer).Value)
+			integer, ok := val.(*object.Integer)
+			if !ok {
+				fmt.Printf("(error) %s\n\n", val.(*object.Error).Message)
+			} else {
+				fmt.Printf("%d\n\n", integer.Value)
+			}
 		} else {
 			fmt.Printf("\nan error occurred reading input. err=%s", err)
 		}

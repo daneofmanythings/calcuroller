@@ -61,6 +61,11 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.DICE, p.parseDiceExpression)
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
+	p.registerPrefix(token.ILLEGAL, p.parseIllegalExpression)
+	p.registerPrefix(token.ASTERISK, p.parseIllegalExpression)
+	p.registerPrefix(token.SLASH, p.parseIllegalExpression)
+	p.registerPrefix(token.MODULUS, p.parseIllegalExpression)
+	p.registerPrefix(token.EOF, p.parseIllegalExpression)
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
@@ -158,6 +163,15 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 	p.nextToken()
 
 	expression.Right = p.parseExpression(PREFIX)
+
+	return expression
+}
+
+func (p *Parser) parseIllegalExpression() ast.Expression {
+	expression := &ast.IllegalLiteral{
+		Token:   p.curToken,
+		Literal: p.curToken.Literal,
+	}
 
 	return expression
 }

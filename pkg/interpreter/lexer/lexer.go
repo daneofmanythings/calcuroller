@@ -55,7 +55,7 @@ func (l *Lexer) NextToken() token.Token {
 		tok.Literal = l.readTag()
 		tok.Type = token.METATAG
 	case 0:
-		tok.Literal = ""
+		tok.Literal = "EOF"
 		tok.Type = token.EOF
 	default:
 		if isLetter(l.ch) {
