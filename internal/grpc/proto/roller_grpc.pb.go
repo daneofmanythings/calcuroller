@@ -23,7 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RollerClient interface {
 	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
-	Roll(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
+	Roll(ctx context.Context, in *RollRequest, opts ...grpc.CallOption) (*RollResponse, error)
 }
 
 type rollerClient struct {
@@ -36,16 +36,16 @@ func NewRollerClient(cc grpc.ClientConnInterface) RollerClient {
 
 func (c *rollerClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error) {
 	out := new(PingResponse)
-	err := c.cc.Invoke(ctx, "/Roller/Ping", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/google.rpc.Roller/Ping", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *rollerClient) Roll(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error) {
-	out := new(CreateResponse)
-	err := c.cc.Invoke(ctx, "/Roller/Roll", in, out, opts...)
+func (c *rollerClient) Roll(ctx context.Context, in *RollRequest, opts ...grpc.CallOption) (*RollResponse, error) {
+	out := new(RollResponse)
+	err := c.cc.Invoke(ctx, "/google.rpc.Roller/Roll", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (c *rollerClient) Roll(ctx context.Context, in *CreateRequest, opts ...grpc
 // for forward compatibility
 type RollerServer interface {
 	Ping(context.Context, *PingRequest) (*PingResponse, error)
-	Roll(context.Context, *CreateRequest) (*CreateResponse, error)
+	Roll(context.Context, *RollRequest) (*RollResponse, error)
 	mustEmbedUnimplementedRollerServer()
 }
 
@@ -68,7 +68,7 @@ type UnimplementedRollerServer struct {
 func (UnimplementedRollerServer) Ping(context.Context, *PingRequest) (*PingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
 }
-func (UnimplementedRollerServer) Roll(context.Context, *CreateRequest) (*CreateResponse, error) {
+func (UnimplementedRollerServer) Roll(context.Context, *RollRequest) (*RollResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Roll not implemented")
 }
 func (UnimplementedRollerServer) mustEmbedUnimplementedRollerServer() {}
@@ -94,7 +94,7 @@ func _Roller_Ping_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/Roller/Ping",
+		FullMethod: "/google.rpc.Roller/Ping",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RollerServer).Ping(ctx, req.(*PingRequest))
@@ -103,7 +103,7 @@ func _Roller_Ping_Handler(srv interface{}, ctx context.Context, dec func(interfa
 }
 
 func _Roller_Roll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateRequest)
+	in := new(RollRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -112,10 +112,10 @@ func _Roller_Roll_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/Roller/Roll",
+		FullMethod: "/google.rpc.Roller/Roll",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RollerServer).Roll(ctx, req.(*CreateRequest))
+		return srv.(RollerServer).Roll(ctx, req.(*RollRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -124,7 +124,7 @@ func _Roller_Roll_Handler(srv interface{}, ctx context.Context, dec func(interfa
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Roller_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "Roller",
+	ServiceName: "google.rpc.Roller",
 	HandlerType: (*RollerServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

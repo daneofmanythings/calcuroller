@@ -43,7 +43,7 @@ func RunFromTerminal() {
 	}
 }
 
-func RunFromGRPC(input string) (string, *object.Metadata) {
+func RunFromGRPC(input string) (object.Object, *object.Metadata) {
 	value, metadata := run(input)
-	return value.Inspect(), metadata
+	return value, metadata
 }

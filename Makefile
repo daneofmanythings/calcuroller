@@ -37,7 +37,7 @@ build-server-docker-multistage:
 	@ docker build -f Dockerfile.multistage . -t calcuroller
 
 .PHONY: run-server-docker
-run-server-docker-host: build-server-docker-multistage
+run-server-docker: build-server-docker-multistage
 	@ docker run --network="host" calcuroller
 
 .PHONY: build-client-local

@@ -1,26 +1,35 @@
 syntax = "proto3";
 option go_package = "github.com/daneofmanythings/calcuroller/internal/grpc/roller";
+package google.rpc;
+import "google/rpc/status.proto";
 
 service Roller {
   rpc Ping(PingRequest) returns (PingResponse) {}
-  rpc Roll(CreateRequest) returns (CreateResponse) {}
+  rpc Roll(RollRequest) returns (RollResponse) {}
 }
 
 message PingRequest {}
 
 message PingResponse { string ping = 1; }
 
-message CreateRequest {
+message RollRequest {
   string dice_string = 1;
   string caller_id = 2;
 };
 
 message RollData {
-  string literal = 2;
-  bytes metadata = 1;
+  string literal = 1;
+  bytes metadata = 2; // passing the metadata as serialized json
 };
 
-message CreateResponse {
+message RollResponseData {
   RollData data = 1;
   string caller_id = 2;
 };
+
+message RollResponse {
+  oneof message {
+    RollResponseData data = 1;
+    google.rpc.Status status = 2;
+  }
+}

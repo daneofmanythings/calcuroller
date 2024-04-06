@@ -8,9 +8,12 @@ import (
 	"net"
 
 	pb "github.com/daneofmanythings/calcuroller/internal/grpc/proto"
+	"github.com/daneofmanythings/calcuroller/pkg/interpreter/object"
 	"github.com/daneofmanythings/calcuroller/pkg/interpreter/repl"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/status"
 )
 
 var port int = 8080
@@ -28,20 +31,34 @@ func (s *rollerServer) Ping(ctx context.Context, req *pb.PingRequest) (*pb.PingR
 }
 
 // TODO: DO REAL ERROR CHECKING ON BOTH RETURN VALUES AND JSON ENCODING!
-func (s *rollerServer) Roll(ctx context.Context, req *pb.CreateRequest) (*pb.CreateResponse, error) {
-	result, metadata := repl.RunFromGRPC(req.DiceString)
+func (s *rollerServer) Roll(ctx context.Context, req *pb.RollRequest) (*pb.RollResponse, error) {
+	result, metadata := repl.RunFromGRPC(req.GetDiceString())
+
+	// this is pure chaos
+	if result.Type() == object.ERROR_OBJ {
+		return &pb.RollResponse{
+			Message: &pb.RollResponse_Status{
+				Status: status.Newf(codes.InvalidArgument, "%d", result.Inspect()),
+			},
+		}, nil
+	}
 
 	metadataJSON, err := json.Marshal(metadata.Store)
 	if err != nil {
 		metadataJSON = []byte{}
 	}
 
-	return &pb.CreateResponse{
-		Data: &pb.RollData{
-			Literal:  result,
-			Metadata: metadataJSON,
+	// and this is pure chaos
+	return &pb.RollResponse{
+		Message: &pb.RollResponse_Data{
+			Data: &pb.RollResponseData{
+				Data: &pb.RollData{
+					Literal:  result.Inspect(),
+					Metadata: metadataJSON,
+				},
+				CallerId: req.GetCallerId(),
+			},
 		},
-		CallerId: req.CallerId,
 	}, nil
 }
 
