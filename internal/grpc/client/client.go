@@ -43,21 +43,26 @@ func main() {
 	for {
 		fmt.Print(">> ")
 		diceString, err := reader.ReadString('\n')
-		if err == nil {
-			response, err := client.Roll(context.Background(), &pb.CreateRequest{
-				DiceString: diceString,
-				CallerId:   callerId,
-			})
-			if err != nil {
-				log.Fatalf("Roll failed: err=%s", err)
-			}
-			metadata := deserializeJSON(response.Data.Metadata)
-			value := response.Data.Literal
-			log.Println("CallerID: " + response.CallerId[:len(response.CallerId)-1])
+		if err != nil {
+			fmt.Printf("\nan error occurred reading input. err=%s", err)
+			continue
+		}
+		response, err := client.Roll(context.Background(), &pb.RollRequest{
+			DiceString: diceString,
+			CallerId:   callerId,
+		})
+		if err != nil {
+			log.Fatalf("Roll failed: err=%s", err)
+		}
+		switch response.Message.(type) {
+		case *pb.RollResponse_Data:
+			metadata := deserializeJSON(response.GetData().GetData().GetMetadata())
+			value := response.GetData().GetData().GetLiteral()
+			log.Println("CallerID: " + response.GetData().GetCallerId()[:len(response.GetData().GetCallerId())-1])
 			log.Println("Value: " + value)
 			log.Println("Metadata:" + prettyStringifyMetadata(metadata))
-		} else {
-			fmt.Printf("\nan error occurred reading input. err=%s", err)
+		case *pb.RollResponse_Status:
+			log.Println("(error) " + response.GetStatus().Message + "\n")
 		}
 	}
 }

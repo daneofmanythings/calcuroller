@@ -13,7 +13,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
-	"google.golang.org/grpc/status"
 )
 
 var port int = 8080
@@ -38,7 +37,10 @@ func (s *rollerServer) Roll(ctx context.Context, req *pb.RollRequest) (*pb.RollR
 	if result.Type() == object.ERROR_OBJ {
 		return &pb.RollResponse{
 			Message: &pb.RollResponse_Status{
-				Status: status.Newf(codes.InvalidArgument, "%d", result.Inspect()),
+				Status: &pb.MyStatus{
+					Code:    int32(codes.InvalidArgument),
+					Message: result.Inspect(),
+				},
 			},
 		}, nil
 	}

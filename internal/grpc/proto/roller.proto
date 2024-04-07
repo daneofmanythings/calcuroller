@@ -1,12 +1,7 @@
 syntax = "proto3";
 option go_package = "github.com/daneofmanythings/calcuroller/internal/grpc/roller";
 package google.rpc;
-import "google/rpc/status.proto";
-
-service Roller {
-  rpc Ping(PingRequest) returns (PingResponse) {}
-  rpc Roll(RollRequest) returns (RollResponse) {}
-}
+import "google/protobuf/any.proto";
 
 message PingRequest {}
 
@@ -27,9 +22,15 @@ message RollResponseData {
   string caller_id = 2;
 };
 
+message MyStatus {
+  int32 code = 1;
+  string message = 2;
+  repeated google.protobuf.Any details = 3;
+};
+
 message RollResponse {
   oneof message {
     RollResponseData data = 1;
-    google.rpc.Status status = 2;
+    MyStatus status = 2;
   }
-}
+};
