@@ -273,7 +273,7 @@ func evalIntegerInfixExpression(operator string, left, right object.Object) obje
 }
 
 func integerExponentiation(base, exponent int64) int64 {
-	if exponent <= 0 {
+	if exponent < 1 {
 		return 1
 	}
 	return base * integerExponentiation(base, exponent-1)
