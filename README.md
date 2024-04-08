@@ -82,12 +82,13 @@ There is currently a single service implemented in the gRPC, Roller, with two pr
 Ping takes no arguements and returns the struct: `{ ping: pong }`
 
 Roll takes data of the shape 
-```json
-{ dice_string: <string>, caller_id: <string> }
 ```
-.
+{ dice_string: <string>, caller_id: <string> }
+```.
+
 Upon recieving a request resulting in an error, it will return:
-```json
+
+```
 {
     message: {
         status: {
@@ -98,7 +99,7 @@ Upon recieving a request resulting in an error, it will return:
 }
 
 A successful request will return:
-```json
+```
 {
     message: {
         data: {
@@ -112,13 +113,13 @@ A successful request will return:
 }
 ```
 The metadata json is a map with <string> pointing to <DiceData>. Dice data has the following shape:
-```json
+```
 {
     Literal: <string>,
     Tags: []<string>
-    RawRolls: []<int>,
-    FinalRolls: []<int>,
-    Value: <int>,
+    RawRolls: []<uint>,
+    FinalRolls: []<uint>,
+    Value: <int64>,
 }
 ```
 
