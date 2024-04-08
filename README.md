@@ -84,10 +84,9 @@ Ping takes no arguements and returns the struct: `{ ping: pong }`
 Roll takes data of the shape 
 ```
 { dice_string: <string>, caller_id: <string> }
-```.
+```
 
 Upon recieving a request resulting in an error, it will return:
-
 ```
 {
     message: {
@@ -97,6 +96,7 @@ Upon recieving a request resulting in an error, it will return:
         }
     }
 }
+```
 
 A successful request will return:
 ```
@@ -112,6 +112,7 @@ A successful request will return:
     },
 }
 ```
+
 The metadata json is a map with <string> pointing to <DiceData>. Dice data has the following shape:
 ```
 {
