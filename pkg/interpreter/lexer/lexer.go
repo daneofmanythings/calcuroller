@@ -59,8 +59,8 @@ func (l *Lexer) NextToken() token.Token {
 		tok.Type = token.EOF
 	default:
 		if isLetter(l.ch) {
-			if l.ch == 'd' {
-				return newToken(token.DICE, l.ch)
+			if l.ch == 'd' && isDigit(l.peekChar()) { // identifying dice string
+				return l.newDiceToken()
 			}
 			tok.Literal = l.readIdentifier()
 			// WARN: Re-evaluate this logic. If there are ever more reserved identifiers added, this will break
@@ -69,6 +69,7 @@ func (l *Lexer) NextToken() token.Token {
 			if _, ok := token.Keywords[tok.Literal]; ok {
 				tok.Literal = l.readNumber()
 			}
+			// TODO: Add lexing for tags. they are to be surrounded by [], and be read in as simply strings
 			return tok
 		} else if isDigit(l.ch) {
 			tok.Type = token.INT
@@ -86,13 +87,13 @@ func newToken(tokenType token.TokenType, ch byte) token.Token {
 	return token.Token{Type: tokenType, Literal: string(ch)}
 }
 
-//	func (l *Lexer) newDiceToken() token.Token {
-//		var tok token.Token
-//		tok.Type = token.DICE
-//		l.readChar() // advance to the integer
-//		tok.Literal = l.readNumber()
-//		return tok
-//	}
+func (l *Lexer) newDiceToken() token.Token {
+	var tok token.Token
+	tok.Type = token.DICE
+	l.readChar() // advance to the integer
+	tok.Literal = l.readNumber()
+	return tok
+}
 
 func (l *Lexer) readIdentifier() string {
 	position := l.position

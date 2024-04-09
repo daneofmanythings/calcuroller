@@ -91,7 +91,7 @@ Upon recieving a request resulting in an error, it will return:
 {
     message: {
         status: {
-            code: int32,
+            code: <int32>,
             message: <string>,
         }
     }
@@ -113,7 +113,7 @@ A successful request will return:
 }
 ```
 
-The metadata json is a map with <string> pointing to <DiceData>. Dice data has the following shape:
+The metadata json is a map with 'string' pointing to 'dice data'. Dice data has the following shape:
 ```
 {
     Literal: <string>,
@@ -123,7 +123,5 @@ The metadata json is a map with <string> pointing to <DiceData>. Dice data has t
     Value: <int64>,
 }
 ```
-
-
 ## Licensing
-This project is Liscensed under the MiT Liscence.
+This project is licensed under the MiT Liscence.
