@@ -78,50 +78,8 @@ Both of these will be implemented soon so you can roll some dice to see how many
 
 #### Server API
 There is currently a single service implemented in the gRPC, Roller, with two procedures, Ping and Roll.
+The API for both can be found in [roller.proto](./internal/grpc/proto/roller.proto)
 
-Ping takes no arguements and returns the struct: `{ ping: pong }`
 
-Roll takes data of the shape 
-```
-{ dice_string: <string>, caller_id: <string> }
-```
-
-Upon recieving a request resulting in an error, it will return:
-```
-{
-    message: {
-        status: {
-            code: <int32>,
-            message: <string>,
-        }
-    }
-}
-```
-
-A successful request will return:
-```
-{
-    message: {
-        data: {
-            data: {
-                literal: <string>,
-                metadata: <json>, -- See below for the shape of this field
-            }
-            caller_id: <string>,
-        },
-    },
-}
-```
-
-The metadata json is a map with 'string' pointing to 'dice data'. Dice data has the following shape:
-```
-{
-    Literal: <string>,
-    Tags: []<string>
-    RawRolls: []<uint>,
-    FinalRolls: []<uint>,
-    Value: <int64>,
-}
-```
 ## Licensing
 This project is licensed under the MiT Liscence.
