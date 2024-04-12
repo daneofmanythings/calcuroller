@@ -92,8 +92,8 @@ func evalIntegerExpression(node ast.Expression, md *object.Metadata) object.Obje
 	md.Add(integerNode.String(), object.DiceData{
 		Literal:    integerNode.String(),
 		Tags:       integerNode.Tags,
-		RawRolls:   []uint{},
-		FinalRolls: []uint{},
+		RawRolls:   []uint32{},
+		FinalRolls: []uint32{},
 		Value:      integerNode.Value,
 	})
 
@@ -107,7 +107,7 @@ func evalDiceExpression(node ast.Expression, md *object.Metadata) object.Object 
 		return newError("expected DiceLiteral, got=%v", node.TokenLiteral())
 	}
 
-	rawRolls := []uint{}
+	rawRolls := []uint32{}
 
 	if dice.Quantity > 0 {
 		for i := 0; i < int(dice.Quantity); i++ {
@@ -145,13 +145,13 @@ func evalDiceExpression(node ast.Expression, md *object.Metadata) object.Object 
 	return &object.Integer{Value: value}
 }
 
-func rollSingleDie(size uint, rawRolls []uint) []uint {
+func rollSingleDie(size uint32, rawRolls []uint32) []uint32 {
 	roll := rand.Intn(int(size))
-	rawRolls = append(rawRolls, uint(roll+1))
+	rawRolls = append(rawRolls, uint32(roll+1))
 	return rawRolls
 }
 
-func applyMaxValue(rolls []uint, val uint) []uint {
+func applyMaxValue(rolls []uint32, val uint32) []uint32 {
 	for i := 0; i < len(rolls); i++ {
 		if rolls[i] > val {
 			rolls[i] = val
@@ -160,7 +160,7 @@ func applyMaxValue(rolls []uint, val uint) []uint {
 	return rolls
 }
 
-func applyMinValue(rolls []uint, val uint) []uint {
+func applyMinValue(rolls []uint32, val uint32) []uint32 {
 	for i := 0; i < len(rolls); i++ {
 		if rolls[i] < val {
 			rolls[i] = val
@@ -169,16 +169,16 @@ func applyMinValue(rolls []uint, val uint) []uint {
 	return rolls
 }
 
-func applyKeepHighest(rolls []uint, val uint) []uint {
+func applyKeepHighest(rolls []uint32, val uint32) []uint32 {
 	return applyKeepFunc(rolls, val, slices.Max)
 }
 
-func applyKeepLowest(rolls []uint, val uint) []uint {
+func applyKeepLowest(rolls []uint32, val uint32) []uint32 {
 	return applyKeepFunc(rolls, val, slices.Min)
 }
 
-func applyKeepFunc(rolls []uint, val uint, f func([]uint) uint) []uint {
-	resultRolls := []uint{}          // what will be returned
+func applyKeepFunc(rolls []uint32, val uint32, f func([]uint32) uint32) []uint32 {
+	resultRolls := []uint32{}        // what will be returned
 	rollsCopy := slices.Clone(rolls) // what will be updated to track remaining rolls after grabbing a min
 	// rolls will be used to sort the returning slice in the order the rolls happened
 
@@ -195,7 +195,7 @@ func applyKeepFunc(rolls []uint, val uint, f func([]uint) uint) []uint {
 	}
 
 	// sorting the result in roll order
-	slices.SortFunc(resultRolls, func(a, b uint) int {
+	slices.SortFunc(resultRolls, func(a, b uint32) int {
 		if slices.Index(rolls, a) < slices.Index(rolls, b) {
 			return -1
 		} else {
@@ -206,7 +206,7 @@ func applyKeepFunc(rolls []uint, val uint, f func([]uint) uint) []uint {
 	return resultRolls
 }
 
-func sumRolls(rolls []uint) int64 {
+func sumRolls(rolls []uint32) int64 {
 	var result int64 = 0
 	for _, roll := range rolls {
 		result += int64(roll)

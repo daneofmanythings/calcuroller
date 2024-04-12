@@ -89,12 +89,12 @@ func (il *IllegalLiteral) String() string       { return il.Literal }
 type DiceLiteral struct {
 	Token       token.Token
 	Tags        []string
-	Size        uint
-	Quantity    uint
-	MaxValue    uint
-	MinValue    uint
-	KeepHighest uint
-	KeepLowest  uint
+	Size        uint32
+	Quantity    uint32
+	MaxValue    uint32
+	MinValue    uint32
+	KeepHighest uint32
+	KeepLowest  uint32
 }
 
 func (dl *DiceLiteral) expressionNode()      {}

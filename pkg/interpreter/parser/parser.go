@@ -250,14 +250,14 @@ func (p *Parser) parseDiceHighest(d *ast.DiceLiteral) {
 	d.KeepHighest = p.validateIntToUInt(p.curToken.Literal)
 }
 
-func (p *Parser) validateIntToUInt(lit string) uint {
+func (p *Parser) validateIntToUInt(lit string) uint32 {
 	value, err := strconv.ParseInt(lit, 0, 64)
 	if err != nil {
 		msg := fmt.Sprintf("could not parse %q as integer", p.curToken.Literal)
 		p.errors = append(p.errors, msg)
 	}
 
-	return uint(value)
+	return uint32(value)
 }
 
 func (p *Parser) parseGroupedExpression() ast.Expression {

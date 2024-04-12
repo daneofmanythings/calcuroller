@@ -1,6 +1,9 @@
 syntax = "proto3";
+
 option go_package = "github.com/daneofmanythings/calcuroller/internal/grpc/roller";
+
 package google.rpc;
+
 import "google/protobuf/any.proto";
 
 message PingRequest {}
@@ -12,14 +15,18 @@ message RollRequest {
   string caller_id = 2;
 };
 
-message RollData {
-  string literal = 1;
-  bytes metadata = 2; // passing the metadata as serialized json
-};
+message DiceRollMetadata {
+  string response_literal = 1;
+  repeated string tags = 2;
+  repeated uint32 raw_rolls = 3;
+  repeated uint32 final_rolls = 4;
+  int64 value = 5;
+}
 
-message RollResponseData {
-  RollData data = 1;
-  string caller_id = 2;
+message RollData {
+  string request_literal = 1;
+  int64 value = 2;
+  repeated DiceRollMetadata metadata = 3;
 };
 
 message MyStatus {
@@ -30,7 +37,7 @@ message MyStatus {
 
 message RollResponse {
   oneof message {
-    RollResponseData data = 1;
+    RollData data = 1;
     MyStatus status = 2;
   }
 };

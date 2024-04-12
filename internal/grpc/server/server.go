@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net"
@@ -31,7 +30,8 @@ func (s *rollerServer) Ping(ctx context.Context, req *pb.PingRequest) (*pb.PingR
 
 // TODO: DO REAL ERROR CHECKING ON BOTH RETURN VALUES AND JSON ENCODING!
 func (s *rollerServer) Roll(ctx context.Context, req *pb.RollRequest) (*pb.RollResponse, error) {
-	result, metadata := repl.RunFromGRPC(req.GetDiceString())
+	requestLiteral := req.GetDiceString()
+	result, metadata := repl.RunFromGRPC(requestLiteral)
 
 	// this is pure chaos
 	if result.Type() == object.ERROR_OBJ {
@@ -45,20 +45,27 @@ func (s *rollerServer) Roll(ctx context.Context, req *pb.RollRequest) (*pb.RollR
 		}, nil
 	}
 
-	metadataJSON, err := json.Marshal(metadata.Store)
-	if err != nil {
-		metadataJSON = []byte{}
+	value := result.(*object.Integer).Value
+	diceRollMetadata := []*pb.DiceRollMetadata{}
+
+	for _, rollData := range metadata.Store {
+		rollMetadata := &pb.DiceRollMetadata{
+			ResponseLiteral: rollData.Literal,
+			Tags:            rollData.Tags,
+			RawRolls:        rollData.RawRolls,
+			FinalRolls:      rollData.FinalRolls,
+			Value:           rollData.Value,
+		}
+		diceRollMetadata = append(diceRollMetadata, rollMetadata)
 	}
 
 	// and this is pure chaos
 	return &pb.RollResponse{
 		Message: &pb.RollResponse_Data{
-			Data: &pb.RollResponseData{
-				Data: &pb.RollData{
-					Literal:  result.Inspect(),
-					Metadata: metadataJSON,
-				},
-				CallerId: req.GetCallerId(),
+			Data: &pb.RollData{
+				RequestLiteral: requestLiteral,
+				Value:          value,
+				Metadata:       diceRollMetadata,
 			},
 		},
 	}, nil

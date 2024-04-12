@@ -37,8 +37,8 @@ func (e *Error) Inspect() string  { return "ERROR: " + e.Message }
 type DiceData struct {
 	Literal    string
 	Tags       []string
-	RawRolls   []uint
-	FinalRolls []uint
+	RawRolls   []uint32
+	FinalRolls []uint32
 	Value      int64
 }
 
@@ -68,7 +68,7 @@ func (dd *DiceData) Inspect() string {
 	return out.String()
 }
 
-func uintSliceToString(input []uint) string {
+func uintSliceToString(input []uint32) string {
 	var out bytes.Buffer
 	for _, num := range input {
 		out.WriteString(fmt.Sprintf("%d", num) + " ")

@@ -4,13 +4,11 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 
 	pb "github.com/daneofmanythings/calcuroller/internal/grpc/proto"
-	"github.com/daneofmanythings/calcuroller/pkg/interpreter/object"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -56,35 +54,22 @@ func main() {
 		}
 		switch response.Message.(type) {
 		case *pb.RollResponse_Data:
-			metadata := deserializeJSON(response.GetData().GetData().GetMetadata())
-			value := response.GetData().GetData().GetLiteral()
-			log.Println("CallerID: " + response.GetData().GetCallerId()[:len(response.GetData().GetCallerId())-1])
-			log.Println("Value: " + value)
-			log.Println("Metadata:" + prettyStringifyMetadata(metadata))
+			log.Println("Request string: " + response.GetData().GetRequestLiteral())
+			log.Printf("Value: %d\n", response.GetData().GetValue())
+			log.Println("Metadata:" + prettyStringifyMetadata(response.GetData().GetMetadata()))
 		case *pb.RollResponse_Status:
 			log.Println("(error) " + response.GetStatus().Message + "\n")
 		}
 	}
 }
 
-func deserializeJSON(input []byte) map[string]object.DiceData {
-	reader := bytes.NewReader(input)
-	container := make(map[string]object.DiceData)
-
-	decoder := json.NewDecoder(reader)
-	err := decoder.Decode(&container)
-	if err != nil {
-		log.Fatalf("unable to deserialize json. err=%v", err)
-	}
-
-	return container
-}
-
-func prettyStringifyMetadata(md map[string]object.DiceData) string {
+func prettyStringifyMetadata(md []*pb.DiceRollMetadata) string {
 	var out bytes.Buffer
-	for key, val := range md {
-		out.WriteString("\n{\n" + key + ":\n")
-		out.WriteString(val.Inspect() + "}")
+	for _, data := range md {
+		out.WriteString("\n{\n" + data.ResponseLiteral + ": ")
+		out.WriteString(fmt.Sprintf("%d", data.Value) + "\n")
+		// TODO: make the metadata print prettier. low priority.
+		out.WriteString(data.String() + "\n}")
 	}
 	out.WriteString("\n")
 
