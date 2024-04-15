@@ -3,10 +3,12 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	_ "embed"
 	"fmt"
 	"log"
 	"net"
 
+	"github.com/daneofmanythings/calcuroller/internal/grpc/certs"
 	pb "github.com/daneofmanythings/calcuroller/internal/grpc/proto"
 	"github.com/daneofmanythings/calcuroller/pkg/interpreter/object"
 	"github.com/daneofmanythings/calcuroller/pkg/interpreter/repl"
@@ -17,11 +19,6 @@ import (
 )
 
 var port int = 8080
-
-const (
-	serverCertPath = "./internal/grpc/certs/server-cert.pem"
-	serverKeyPath  = "./internal/grpc/certs/server-key.pem"
-)
 
 type rollerServer struct {
 	pb.UnimplementedRollerServer
@@ -80,7 +77,7 @@ func (s *rollerServer) Roll(ctx context.Context, req *pb.RollRequest) (*pb.RollR
 
 func loadTLSCredentials() (credentials.TransportCredentials, error) {
 	// Load server's certificate and private key
-	serverCert, err := tls.LoadX509KeyPair(serverCertPath, serverKeyPath)
+	serverCert, err := tls.X509KeyPair(certs.ServerCertPEMBlock, certs.ServerKeyPEMBlock)
 	if err != nil {
 		return nil, err
 	}

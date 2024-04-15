@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/daneofmanythings/calcuroller/internal/grpc/certs"
 	pb "github.com/daneofmanythings/calcuroller/internal/grpc/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -17,7 +18,6 @@ import (
 
 const (
 	serverAddr string = "localhost:8080"
-	caCertPath string = "./internal/grpc/certs/ca-cert.pem"
 )
 
 func main() {
@@ -78,14 +78,8 @@ func runREPL(client pb.RollerClient) {
 }
 
 func loadTLSCredentials() (credentials.TransportCredentials, error) {
-	// Load certificate of the CA who signed server's certificate
-	pemServerCA, err := os.ReadFile(caCertPath)
-	if err != nil {
-		return nil, err
-	}
-
 	certPool := x509.NewCertPool()
-	if !certPool.AppendCertsFromPEM(pemServerCA) {
+	if !certPool.AppendCertsFromPEM(certs.CACertPEMBlock) {
 		return nil, fmt.Errorf("failed to add server CA's certificate")
 	}
 

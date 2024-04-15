@@ -1,4 +1,4 @@
-gen_grpc:
+gen-grpc:
 	@ echo Generating grpc with protoc
 	@ protoc \
 	--go_out=. \
@@ -8,7 +8,7 @@ gen_grpc:
 	./internal/grpc/proto/roller.proto
 	@ echo ...done!
 
-gen_certs:
+gen-certs:
 	@ echo Generating local certs
 	@ ${MAKE} -C ./internal/grpc/certs/ gen_certs
 	@ echo ...done!
@@ -26,7 +26,7 @@ run-repl: build-repl
 	@ ./.bin/repl
 
 .PHONY: build-server-local
-build-server-local:
+build-server-local: gen-certs
 	@ echo Locally building binary
 	@ mkdir .bin/ -p
 	@ go build -o local_server ./internal/grpc/server/server.go
@@ -38,7 +38,7 @@ run-server-local: build-server-local
 	@ ./.bin/local_server
 
  .PHONY: build-server-docker-multistage
-build-server-docker-multistage:
+build-server-docker-multistage: gen-certs
 	@ docker build -f Dockerfile.multistage . -t calcuroller
 
 .PHONY: run-server-docker
