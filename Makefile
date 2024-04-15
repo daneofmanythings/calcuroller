@@ -8,6 +8,11 @@ gen_grpc:
 	./internal/grpc/proto/roller.proto
 	@ echo ...done!
 
+gen_certs:
+	@ echo Generating local certs
+	@ ${MAKE} -C ./internal/grpc/certs/ gen_certs
+	@ echo ...done!
+
 .PHONY: build-repl
 build-repl:
 	@ echo Locally building binary

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"log"
 	"net"
@@ -11,10 +12,16 @@ import (
 	"github.com/daneofmanythings/calcuroller/pkg/interpreter/repl"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
 )
 
 var port int = 8080
+
+const (
+	serverCertPath = "./internal/grpc/certs/server-cert.pem"
+	serverKeyPath  = "./internal/grpc/certs/server-key.pem"
+)
 
 type rollerServer struct {
 	pb.UnimplementedRollerServer
@@ -71,15 +78,37 @@ func (s *rollerServer) Roll(ctx context.Context, req *pb.RollRequest) (*pb.RollR
 	}, nil
 }
 
+func loadTLSCredentials() (credentials.TransportCredentials, error) {
+	// Load server's certificate and private key
+	serverCert, err := tls.LoadX509KeyPair(serverCertPath, serverKeyPath)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create the credentials and return it
+	config := &tls.Config{
+		Certificates: []tls.Certificate{serverCert},
+		ClientAuth:   tls.NoClientCert,
+	}
+
+	return credentials.NewTLS(config), nil
+}
+
 func main() {
 	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
 	if err != nil {
 		log.Fatalf("...could not listen: %v", err)
 	}
 
-	var opts []grpc.ServerOption
+	tlsCredentials, err := loadTLSCredentials()
+	if err != nil {
+		log.Fatal("...could not load TLS credentials: ", err)
+	}
 
-	grpcServer := grpc.NewServer(opts...)
+	grpcServer := grpc.NewServer(
+		grpc.Creds(tlsCredentials),
+	)
+
 	pb.RegisterRollerServer(grpcServer, newServer())
 	reflection.Register(grpcServer)
 
